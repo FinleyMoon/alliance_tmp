@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  alliance:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: git.finmoon.net/fin/alliance:latest
+    container_name: alliance_gm
+    restart: unless-stopped
+    user: "1000:1000"
+    ports:
+      - "${HOST_PORT:-8007}:8000"
+    environment:
+      - DATA_DIR=${DATA_DIR:-/data}
+      - DB_PATH=${DB_PATH:-/data/alliance.db}
+      - UPLOADS_DIR=${UPLOADS_DIR:-/data/uploads}
+      - KEYS_DIR=${KEYS_DIR:-/data/keys}
+      - SECRET_KEY=${SECRET_KEY}
+      - TIMEZONE=${TIMEZONE:-Europe/Moscow}
+      - TZ=${TIMEZONE:-Europe/Moscow}
+    volumes:
+      - ${DATA_HOST_DIR:-/home/fin/nora/data/alliance}:/data

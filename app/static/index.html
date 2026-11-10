@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ALLIANCE // GRID OS</title>
+  <meta name="theme-color" content="#00F0FF">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Alliance">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500;700&family=Roboto:wght@400;500;700&family=Space+Grotesk:wght@600;800&subset=latin,cyrillic&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="brand-title">
+      <span class="brand-full" data-i18n="app_title">ALLIANCE // GRID OS</span>
+      <span class="brand-mid">ALLIANCE //</span>
+      <span class="brand-short">//</span>
+    </div>
+
+    <!-- 0.1s Accurate Precision Clock -->
+    <div id="header-clock" class="header-clock">00:00:00.0</div>
+
+    <!-- Hamburger Menu Toggle for Responsive Mobile Navigation -->
+    <button class="hamburger-btn" id="hamburger-btn" onclick="AllianceApp.toggleMobileMenu()" aria-label="Toggle Navigation">☰</button>
+
+    <!-- Navigation links -->
+    <nav class="nav-links" id="nav-links-menu">
+
+      <div id="main-nav-links" class="nav-group" style="display:none;">
+        <button class="nav-btn" data-view-target="tactical-view" data-i18n="nav_tactical_matrix">Matrix</button>
+        <button class="nav-btn" data-view-target="lobbies-view" data-i18n="nav_lobbies">Lobbies</button>
+        <button class="nav-btn" id="nav-admin" data-view-target="admin-view" data-i18n="nav_admin" style="display:none;">Admin</button>
+      </div>
+
+      <!-- Rules are accessible to both authenticated users and guests -->
+      <button class="nav-btn" id="nav-rules-btn" data-view-target="rules-view" data-i18n="nav_rules">Rules</button>
+
+      <!-- Language Toggle -->
+      <button class="nav-btn" id="lang-toggle-btn">EN</button>
+
+      <!-- System Alerts Button (Text instead of icon) -->
+      <button class="nav-btn" id="notif-btn" style="display:none;" onclick="AllianceApp.openNotificationsModal()">
+        <span data-i18n="nav_alerts">ALERTS</span>
+        <span class="pill-badge" id="notif-count-badge" style="display:none;">0</span>
+      </button>
+
+      <!-- User Badge (Click opens User Settings Modal) -->
+      <span id="user-badge" class="range-badge" style="display:none; cursor: pointer;" onclick="AllianceApp.openUserSettingsModal()" title="Operative Profile & Settings">@user</span>
+
+      <div id="auth-nav-btns">
+        <button class="nav-btn" onclick="AllianceApp.showView('auth-view')" data-i18n="nav_login">Login</button>
+      </div>
+      <button class="nav-btn" id="nav-logout" style="display:none;" onclick="AllianceApp.logout()" data-i18n="nav_logout">Logout</button>
+    </nav>
+  </header>
+
+  <!-- Main Viewport -->
+  <main class="app-viewport">
+
+    <!-- View: Auth (Default screen for unauthenticated users) -->
+    <div class="view-container active" id="auth-view">
+      <div style="max-width: 440px; margin: 30px auto; width: 100%;">
+        <div class="acrylic-card">
+          <h2 style="font-family: var(--font-display); color: var(--primary-cyan); margin-bottom: 8px;" data-i18n="auth_title">Player Access</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 18px;" data-i18n="auth_subtitle">
+            Authenticate credentials or register a player profile to access the game board.
+          </p>
+
+          <div id="auth-reg-notice" style="display:none; font-size: 0.8rem; background: rgba(244,63,94,0.15); border: 1px solid var(--accent-magenta); color: #fff; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 14px;" data-i18n="auth_reg_closed">
+            Public registrations are currently disabled. An invite code is required to register.
+          </div>
+
+          <form id="auth-form" onsubmit="event.preventDefault();">
+            <div class="form-group">
+              <label data-i18n="auth_username">Username</label>
+              <input type="text" id="auth-username" class="form-input" required minlength="3" maxlength="30" placeholder="Username">
+            </div>
+            <div class="form-group">
+              <label data-i18n="auth_password">Password</label>
+              <input type="password" id="auth-password" class="form-input" required minlength="6" placeholder="Password (min 6 chars)">
+            </div>
+            <div class="form-group">
+              <label data-i18n="auth_flag">National / Emblematical Flag</label>
+              <select id="auth-flag" class="form-select">
+                <option value="UN">🇺🇳 UN - United Nations</option>
+                <option value="FI">🇫🇮 FI - Finland</option>
+                <option value="PRIDE">🏳️‍🌈 PRIDE - Pride Rainbow Flag</option>
+                <option value="FINISH">🏁 FINISH - Checkered Flag</option>
+                <option value="PIRATE">🏴‍☠️ PIRATE - Jolly Roger Flag</option>
+                <option value="PEACE">🏳️ PEACE - White Peace Flag</option>
+                <option value="BLACK">🏴 BLACK - Black Flag</option>
+                <option value="EU">🇪🇺 EU - European Union</option>
+                <option value="US">🇺🇸 US - United States</option>
+                <option value="GB">🇬🇧 GB - United Kingdom</option>
+                <option value="RU">🇷🇺 RU - Russian Federation</option>
+                <option value="CN">🇨🇳 CN - China</option>
+                <option value="DE">🇩🇪 DE - Germany</option>
+                <option value="FR">🇫🇷 FR - France</option>
+                <option value="JP">🇯🇵 JP - Japan</option>
+                <option value="KR">🇰🇷 KR - South Korea</option>
+                <option value="UA">🇺🇦 UA - Ukraine</option>
+                <option value="CA">🇨🇦 CA - Canada</option>
+                <option value="AU">🇦🇺 AU - Australia</option>
+                <option value="BR">🇧🇷 BR - Brazil</option>
+                <option value="IN">🇮🇳 IN - India</option>
+                <option value="IT">🇮🇹 IT - Italy</option>
+                <option value="ES">🇪🇸 ES - Spain</option>
+                <option value="MX">🇲🇽 MX - Mexico</option>
+                <option value="NL">🇳🇱 NL - Netherlands</option>
+                <option value="SE">🇸🇪 SE - Sweden</option>
+                <option value="NO">🇳🇴 NO - Norway</option>
+                <option value="PL">🇵🇱 PL - Poland</option>
+                <option value="KZ">🇰🇿 KZ - Kazakhstan</option>
+                <option value="BY">🇧🇾 BY - Belarus</option>
+                <option value="TR">🇹🇷 TR - Turkey</option>
+                <option value="SA">🇸🇦 SA - Saudi Arabia</option>
+                <option value="ZA">🇿🇦 ZA - South Africa</option>
+                <option value="AR">🇦🇷 AR - Argentina</option>
+                <option value="SG">🇸🇬 SG - Singapore</option>
+                <option value="CH">🇨🇭 CH - Switzerland</option>
+                <option value="AT">🇦🇹 AT - Austria</option>
+                <option value="BE">🇧🇪 BE - Belgium</option>
+                <option value="DK">🇩🇰 DK - Denmark</option>
+                <option value="IE">🇮🇪 IE - Ireland</option>
+                <option value="NZ">🇳🇿 NZ - New Zealand</option>
+                <option value="IL">🇮🇱 IL - Israel</option>
+                <option value="GR">🇬🇷 GR - Greece</option>
+                <option value="PT">🇵🇹 PT - Portugal</option>
+                <option value="CZ">🇨🇿 CZ - Czech Republic</option>
+                <option value="HU">🇭🇺 HU - Hungary</option>
+                <option value="RO">🇷🇴 RO - Romania</option>
+                <option value="BG">🇧🇬 BG - Bulgaria</option>
+                <option value="RS">🇷🇸 RS - Serbia</option>
+                <option value="HR">🇭🇷 HR - Croatia</option>
+                <option value="AE">🇦🇪 AE - United Arab Emirates</option>
+                <option value="EG">🇪🇬 EG - Egypt</option>
+                <option value="NG">🇳🇬 NG - Nigeria</option>
+                <option value="KE">🇰🇪 KE - Kenya</option>
+                <option value="CL">🇨🇱 CL - Chile</option>
+                <option value="CO">🇨🇴 CO - Colombia</option>
+                <option value="VN">🇻🇳 VN - Vietnam</option>
+                <option value="TH">🇹🇭 TH - Thailand</option>
+                <option value="ID">🇮🇩 ID - Indonesia</option>
+                <option value="MY">🇲🇾 MY - Malaysia</option>
+                <option value="PH">🇵🇭 PH - Philippines</option>
+                <option value="IS">🇮🇸 IS - Iceland</option>
+                <option value="EE">🇪🇪 EE - Estonia</option>
+                <option value="LV">🇱🇻 LV - Latvia</option>
+                <option value="LT">🇱🇹 LT - Lithuania</option>
+                <option value="GE">🇬🇪 GE - Georgia</option>
+                <option value="AM">🇦🇲 AM - Armenia</option>
+                <option value="AZ">🇦🇿 AZ - Azerbaijan</option>
+                <option value="UZ">🇺🇿 UZ - Uzbekistan</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label data-i18n="auth_invite_code_label">Invite Code</label>
+              <input type="text" id="auth-invite" class="form-input" placeholder="Invite code (required if registrations closed)">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+              <button type="button" class="btn-cyan" style="flex: 1;" onclick="AllianceApp.handleLogin()" data-i18n="nav_login">Login</button>
+              <button type="button" class="btn-outline" style="flex: 1;" onclick="AllianceApp.handleRegister()" data-i18n="nav_register">Register</button>
+            </div>
+            <div style="margin-top: 14px; text-align: center;">
+              <button type="button" class="btn-outline" style="width: 100%; font-size: 0.85rem; padding: 8px; border-color: var(--primary-cyan); color: var(--primary-cyan);" onclick="AllianceApp.showView('rules-view')" data-i18n="btn_read_rulebook">
+                📖 Read Tactical Rulebook
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Tactical Matrix -->
+    <div class="view-container" id="tactical-view">
+
+      <!-- Match Staging Screen (Visible when game is WAITING before launch) -->
+      <div id="lobby-staging-view" class="staging-container" style="display:none;">
+        <div class="acrylic-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <h2 id="staging-game-name" style="font-family: var(--font-display); color: var(--primary-cyan); font-size: 1.4rem;">Lobby Arena</h2>
+                <span id="staging-playtest-badge" class="badge-tag admin" style="display:none;">PLAYTEST</span>
+              </div>
+              <div id="staging-game-meta" style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">Host: @creator</div>
+            </div>
+            <span class="range-badge" id="staging-status-badge" style="border-color: var(--energy-amber); color: var(--energy-amber);">WAITING FOR LAUNCH</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;" data-i18n="staging_subtitle">
+            The tactical matrix will deploy as soon as the lobby host initiates the match.
+          </p>
+
+          <h4 style="font-size: 0.85rem; color: var(--energy-amber); text-transform: uppercase; margin-bottom: 10px; font-family: var(--font-mono);">
+            Enlisted Players (<span id="staging-player-count">0</span>)
+          </h4>
+          <div class="staging-table-wrap">
+            <table class="admin-table" style="margin-bottom: 0;">
+              <thead>
+                <tr>
+                  <th data-i18n="th_player">Player</th>
+                  <th data-i18n="th_flag">Flag</th>
+                  <th data-i18n="th_classification">Classification</th>
+                  <th data-i18n="th_status">Status</th>
+                  <th id="staging-th-action" style="display:none;" data-i18n="staging_th_action">Action</th>
+                </tr>
+              </thead>
+              <tbody id="staging-roster-tbody">
+                <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 12px;">No players enlisted.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-cyan" id="staging-btn-start" style="padding: 10px 20px; font-weight: bold;" onclick="AllianceApp.startActiveGame()" data-i18n="btn_start_game">
+              Start Match
+            </button>
+            <button class="btn-outline" id="staging-btn-dummy" style="padding: 10px 16px;" onclick="AllianceApp.addDummyToActiveGame()" data-i18n="btn_add_dummy">
+              + Add Bot / Dummy
+            </button>
+            <button class="btn-outline" style="padding: 10px 16px;" onclick="AllianceApp.openLobbySettingsAuditModal()" data-i18n="btn_lobby_settings">
+              Match Settings & Audit
+            </button>
+            <button class="btn-cyan" id="staging-btn-recreate" style="display:none; padding: 10px 16px;" onclick="AllianceApp.openRecreateLobbyModal()" data-i18n="btn_recreate_lobby">
+              Recreate Lobby
+            </button>
+            <button class="btn-outline" id="staging-btn-delete" style="border-color: var(--accent-magenta); color: var(--accent-magenta); padding: 10px 16px;" onclick="AllianceApp.deleteActiveGame()" data-i18n="staging_delete_lobby">
+              Delete Lobby
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Voting Screen (Visible when game status is MAP_VOTING) -->
+      <div id="map-voting-view" class="staging-container" style="display:none;">
+        <div class="acrylic-card map-voting-header-card">
+          <div class="map-voting-top-bar">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <h2 id="map-voting-game-name" style="font-family: var(--font-display); color: var(--primary-cyan); font-size: 1.3rem;">Deployment Map Election</h2>
+                <span class="badge-tag admin" style="background: rgba(0, 240, 255, 0.2); border-color: var(--primary-cyan); color: var(--primary-cyan);">RCV ACTIVE</span>
+              </div>
+              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;" data-i18n="map_voting_desc">
+                Rank the 4 randomized placement options from 1 (most preferred) to 4 (least preferred).
+              </div>
+            </div>
+            <div class="map-voting-meta-badge-wrap">
+              <span class="range-badge" id="map-voting-countdown-badge" style="border-color: var(--energy-amber); color: var(--energy-amber); font-size: 0.9rem;">
+                Voting Closes: <span id="map-voting-countdown">--:--</span>
+              </span>
+              <div id="map-voting-progress-text" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">0 / 0 players voted</div>
+            </div>
+          </div>
+
+          <!-- 4 Map Candidate Preview Cards Grid -->
+          <div id="map-voting-options-grid" class="map-voting-options-grid">
+            <!-- Dynamically populated candidate maps -->
+          </div>
+
+          <!-- Ranking Selector Interface -->
+          <div class="acrylic-card map-ballot-card">
+            <h4 style="font-size: 0.85rem; color: var(--energy-amber); text-transform: uppercase; margin-bottom: 10px; font-family: var(--font-mono);" data-i18n="map_vote_rank_title">
+              Your Ranked Choice Ballot
+            </h4>
+            <div class="map-ballot-ranks-grid">
+              <div class="map-rank-slot">
+                <label style="color: var(--primary-cyan);" data-i18n="rank_1st_choice">🥇 1st Choice (Best)</label>
+                <select id="vote-rank-1" class="form-select" style="padding: 6px 10px; font-size: 0.82rem; margin-top: 4px;">
+                  <option value="1">Option 1 (Alpha)</option>
+                  <option value="2">Option 2 (Bravo)</option>
+                  <option value="3">Option 3 (Charlie)</option>
+                  <option value="4">Option 4 (Delta)</option>
+                </select>
+              </div>
+              <div class="map-rank-slot">
+                <label style="color: var(--matrix-mint);" data-i18n="rank_2nd_choice">🥈 2nd Choice</label>
+                <select id="vote-rank-2" class="form-select" style="padding: 6px 10px; font-size: 0.82rem; margin-top: 4px;">
+                  <option value="1">Option 1 (Alpha)</option>
+                  <option value="2" selected>Option 2 (Bravo)</option>
+                  <option value="3">Option 3 (Charlie)</option>
+                  <option value="4">Option 4 (Delta)</option>
+                </select>
+              </div>
+              <div class="map-rank-slot">
+                <label style="color: var(--energy-amber);" data-i18n="rank_3rd_choice">🥉 3rd Choice</label>
+                <select id="vote-rank-3" class="form-select" style="padding: 6px 10px; font-size: 0.82rem; margin-top: 4px;">
+                  <option value="1">Option 1 (Alpha)</option>
+                  <option value="2">Option 2 (Bravo)</option>
+                  <option value="3" selected>Option 3 (Charlie)</option>
+                  <option value="4">Option 4 (Delta)</option>
+                </select>
+              </div>
+              <div class="map-rank-slot">
+                <label style="color: var(--text-muted);" data-i18n="rank_4th_choice">4️⃣ 4th Choice</label>
+                <select id="vote-rank-4" class="form-select" style="padding: 6px 10px; font-size: 0.82rem; margin-top: 4px;">
+                  <option value="1">Option 1 (Alpha)</option>
+                  <option value="2">Option 2 (Bravo)</option>
+                  <option value="3">Option 3 (Charlie)</option>
+                  <option value="4" selected>Option 4 (Delta)</option>
+                </select>
+              </div>
+            </div>
+            <div class="map-ballot-actions">
+              <button class="btn-cyan" id="btn-submit-map-vote" style="padding: 10px 20px; font-size: 0.85rem;" onclick="AllianceApp.submitMapVote()" data-i18n="btn_submit_ballot">
+                Submit Ranked Ballot
+              </button>
+              <span id="map-vote-status-text" style="font-size: 0.78rem; color: var(--matrix-mint);"></span>
+            </div>
+          </div>
+
+          <div class="map-voting-footer-actions">
+            <button class="btn-outline" id="btn-map-vote-resolve-early" style="display:none; padding: 8px 16px; border-color: var(--energy-amber); color: var(--energy-amber);" onclick="AllianceApp.resolveMapVoteEarly()" data-i18n="btn_resolve_vote_early">
+              Resolve Vote Early (Host)
+            </button>
+            <button class="btn-outline" style="padding: 8px 16px;" onclick="AllianceApp.showView('lobbies-view')" data-i18n="btn_return_lobbies">
+              Return to Lobbies
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tactical Matrix Layout (Displayed when status is ACTIVE or FINISHED) -->
+      <div class="matrix-layout" id="tactical-matrix-layout">
+
+        <!-- Mission Debriefing Card (Displayed when game status is ENDED) -->
+        <div class="acrylic-card debriefing-card" id="game-concluded-card" style="display:none; grid-column: 1 / -1; margin-bottom: 12px; border: 2px solid var(--energy-amber); box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+            <div>
+              <div style="font-family: var(--font-display); font-size: 1.25rem; color: var(--energy-amber); text-transform: uppercase; letter-spacing: 0.05em;" data-i18n="debriefing_title">
+                MISSION DEBRIEFING // OPERATIONS CONCLUDED
+              </div>
+              <div id="debriefing-condition-badge" style="font-size: 0.9rem; color: #fff; margin-top: 4px; font-weight: 600;">
+                Sole Survivor Victory
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-cyan" id="btn-recreate-lobby-ended" style="display:none; padding: 6px 14px; font-size: 0.85rem;" onclick="AllianceApp.openRecreateLobbyModal()" data-i18n="btn_recreate_lobby">
+                Recreate Lobby
+              </button>
+              <button class="btn-cyan" style="padding: 6px 14px; font-size: 0.85rem;" onclick="AllianceApp.showView('lobbies-view')" data-i18n="debriefing_btn_lobbies">
+                Return to Lobbies
+              </button>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+            <!-- Winner Spotlight -->
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm); padding: 12px; display: flex; align-items: center; gap: 12px;">
+              <div id="debriefing-winner-avatar" style="font-size: 2.2rem; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 50%;">🏆</div>
+              <div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-family: var(--font-mono);" data-i18n="debriefing_winner_label">VICTORIOUS PLAYER(S)</div>
+                <div id="debriefing-winner-name" style="font-size: 1.1rem; color: var(--energy-amber); font-weight: bold; font-family: var(--font-display);">@callsign</div>
+                <div id="debriefing-winner-details" style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">Details...</div>
+              </div>
+            </div>
+
+            <!-- Telemetry Stats -->
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div>
+                <div style="font-size: 0.7rem; color: var(--text-muted);" data-i18n="debriefing_total_combatants">Total Players</div>
+                <div id="debriefing-stat-total" style="font-size: 1.1rem; color: var(--primary-cyan); font-weight: bold;">0</div>
+              </div>
+              <div>
+                <div style="font-size: 0.7rem; color: var(--text-muted);" data-i18n="debriefing_casualties">Casualties</div>
+                <div id="debriefing-stat-casualties" style="font-size: 1.1rem; color: var(--accent-magenta); font-weight: bold;">0</div>
+              </div>
+              <div>
+                <div style="font-size: 0.7rem; color: var(--text-muted);" data-i18n="debriefing_survivors">Survivors</div>
+                <div id="debriefing-stat-survivors" style="font-size: 1.1rem; color: var(--matrix-mint); font-weight: bold;">0</div>
+              </div>
+              <div>
+                <div style="font-size: 0.7rem; color: var(--text-muted);" data-i18n="debriefing_events_seq">Tactical Events</div>
+                <div id="debriefing-stat-events" style="font-size: 1.1rem; color: var(--text-primary); font-weight: bold;">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Board Container -->
+        <div class="board-container pinned-mobile" id="board-container">
+          <!-- 1-Line Vitals Header directly on top of the map (displayed on narrow screens) -->
+          <div class="board-vitals-strip" id="board-vitals-strip">
+            <div class="vital-strip-group">
+              <span class="vital-strip-icon">❤️</span>
+              <span class="vital-strip-val" id="vitals-hp-numeric">3 / 3</span>
+              <div class="hp-hearts-mini" id="vitals-hearts-display">
+                <span class="heart-pip full">❤️</span><span class="heart-pip full">❤️</span><span class="heart-pip full">❤️</span>
+              </div>
+            </div>
+            <div class="vital-strip-divider">|</div>
+            <div class="vital-strip-group">
+              <span class="vital-strip-icon">⚡</span>
+              <span class="vital-strip-val ap-glow" id="vitals-ap-numeric">0 AP</span>
+              <span class="vital-strip-sub" id="vitals-burst-cap-tag">(Cap: 3)</span>
+              <span class="vital-strip-sub" id="vitals-ap-drop-time">Drop: 22:00</span>
+            </div>
+          </div>
+
+          <!-- View Lock, Fullscreen Expand & Center Controls Toolbar -->
+          <div class="board-toolbar" id="board-toolbar">
+            <button type="button" id="btn-fullscreen-map" onclick="AllianceApp.toggleFullscreenMap()" title="Expand Map" data-i18n="btn_expand_map">⛶ Expand</button>
+            <button type="button" id="btn-view-lock" onclick="AllianceApp.toggleViewLock()">🔓 View Unlocked</button>
+            <button type="button" id="btn-reset-view" onclick="AllianceApp.resetBoardView()">Center View</button>
+          </div>
+
+          <!-- Diplomatic Conference Takeover Overlay (Replaces the map) -->
+          <div id="conference-map-takeover" class="conference-map-overlay" style="display: none;">
+            <div class="conference-overlay-content">
+              <div class="conference-overlay-header">
+                <div class="conf-badge-pill" id="conf-overlay-badge">DIPLOMATIC CONFERENCE</div>
+                <h3 id="conf-overlay-title" data-i18n="conference_title">DIPLOMATIC CONFERENCE IN SESSION</h3>
+                <div id="conf-overlay-timer" class="conf-timer-glow">Time Remaining: --s</div>
+              </div>
+
+              <!-- Explainer box (shown during deliberations, hidden during resolution cooldown) -->
+              <div id="conf-overlay-explainer" class="conf-explainer-box">
+                <div data-i18n="conference_explain_agree">Unanimous Consensus (100%): All surviving players share collective victory.</div>
+                <div id="conf-overlay-explain-one" data-i18n="conference_explain_one" style="margin-top: 2px;">1 Dissenter: Rogue betrayal outcome.</div>
+                <div id="conf-overlay-explain-multi" data-i18n="conference_explain_multi" style="margin-top: 2px;">>1 Dissenters: Multi-dissenter outcome.</div>
+              </div>
+
+              <!-- Active Voting Box (during CONVENED) -->
+              <div id="conf-overlay-voting-section">
+                <div id="conf-overlay-ballot-prompt" style="font-size: 0.85rem; margin-bottom: 8px; color: var(--text-primary);" data-i18n="conference_ballot_prompt">Cast your official ballot:</div>
+                <div class="conf-ballot-btns">
+                  <button type="button" class="btn-cyan btn-conf-ballot agree" id="conf-overlay-btn-agree" onclick="AllianceApp.submitConferenceVote(true)">
+                    <span>🕊️</span> <span data-i18n="btn_conference_agree">AGREE (PEACE)</span>
+                  </button>
+                  <button type="button" class="btn-outline btn-conf-ballot reject" id="conf-overlay-btn-reject" onclick="AllianceApp.submitConferenceVote(false)">
+                    <span>⚔️</span> <span data-i18n="btn_conference_reject">REJECT (DISSENT)</span>
+                  </button>
+                </div>
+                <div id="conf-overlay-my-vote" class="conf-my-vote-status"></div>
+                <div id="conf-overlay-vote-list" class="conf-vote-breakdown-list"></div>
+              </div>
+
+              <!-- Results Box (during COOLDOWN) -->
+              <div id="conf-overlay-results-section" style="display: none;">
+                <div class="conf-cooldown-badge">
+                  <span data-i18n="conference_cooldown_banner">OPERATIONS RESUME IN:</span> <span id="conf-cooldown-timer">10s</span>
+                </div>
+                <div class="conf-results-card" id="conf-overlay-results-card">
+                  <h4 id="conf-results-header" style="color: var(--energy-amber); font-family: var(--font-display); margin-bottom: 8px;" data-i18n="conference_cooldown_title">CONFERENCE CONCLUDED // RESOLUTION COOLDOWN</h4>
+                  <div id="conf-results-message" style="font-size: 0.9rem; line-height: 1.5; color: var(--text-primary);"></div>
+                  <div id="conf-results-votes" style="margin-top: 8px;"></div>
+                  <div id="conf-results-ap-reward" style="margin-top: 8px; display: none;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <canvas id="tactical-canvas"></canvas>
+          <!-- Spring-animated Radial Action Dock -->
+          <div class="radial-dock" id="radial-dock-container"></div>
+        </div>
+
+        <!-- Tactical Command & Telemetry Sidebar Panel -->
+        <div class="sidebar-panel" id="tactical-sidebar-panel">
+
+          <!-- Desktop Pinned Vitals Header (When wide enough for 2 columns, vitals stay in right column) -->
+          <div class="pinned-vitals-header" id="pinned-vitals-header">
+            <div class="vital-card vital-hp-card" id="vital-hp-box">
+              <div class="vital-label" style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">
+                <span>❤️ HP (HEARTS)</span>
+                <span id="desktop-vitals-hp-numeric" style="color:#FECACA; font-weight:bold;">3 / 3</span>
+              </div>
+              <div class="hp-hearts-row" id="desktop-vitals-hearts-display">
+                <span class="heart-pip full">❤️</span><span class="heart-pip full">❤️</span><span class="heart-pip full">❤️</span>
+              </div>
+            </div>
+            <div class="vital-card vital-ap-card" id="vital-ap-box">
+              <div class="vital-label" style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">
+                <span>⚡ ACTION POINTS</span>
+                <span id="desktop-vitals-ap-numeric" class="ap-glow" style="color:#FDE68A; font-weight:bold;">0 AP</span>
+              </div>
+              <div class="ap-sub-info">
+                <span class="ap-cap-pill" id="desktop-vitals-burst-cap-tag">Cap: 3</span>
+                <span class="ap-drop-pill" id="desktop-vitals-ap-drop-time">Drop: 22:00</span>
+              </div>
+            </div>
+            <button id="btn-pin-map" style="display:none;"></button>
+          </div>
+          <div id="conference-card" style="display:none;"></div>
+
+          <!-- Scrollable Middle Area (When drawer collapsed, reveals targets, conference petition, telemetry, scrubber) -->
+          <div class="sidebar-middle-scroll" id="sidebar-middle-scroll">
+
+            <!-- Targets in Range Panel -->
+            <div class="acrylic-card collapsible-card" id="targets-in-range-card">
+              <div class="card-header collapsible-header" onclick="AllianceApp.toggleCardCollapse('targets-in-range-card')">
+                <span><span class="collapse-icon">▾</span> <span data-i18n="targets_in_range_title">Players in Range</span></span>
+                <span class="pill-badge" id="targets-in-range-count">0</span>
+              </div>
+              <div class="collapsible-body" id="targets-in-range-body">
+                <div id="targets-in-range-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
+                  <span style="color: var(--text-muted); font-size: 0.8rem;" data-i18n="no_targets_in_range">No players within interaction reach.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vote for Peace Conference Card (Petition) -->
+            <div class="acrylic-card" id="armistice-card" style="display:none;">
+              <div class="card-header" style="color: var(--matrix-mint); font-weight: bold;" data-i18n="peace_petition_title">DIPLOMATIC CONFERENCE PETITION</div>
+              <div style="font-size: 0.82rem; margin-bottom: 8px; color: var(--text-secondary);" id="armistice-status">
+                Consensus: A conference convenes when living players petition for peace.
+              </div>
+              <button class="btn-outline" id="vote-peace-btn" style="width: 100%; border-color: var(--matrix-mint); color: var(--matrix-mint);" onclick="AllianceApp.togglePeaceVote()" data-i18n="btn_vote_peace">
+                Vote for Conference
+              </button>
+            </div>
+
+            <!-- Telemetry & Match Status Card -->
+            <div class="acrylic-card collapsible-card" id="telemetry-status-card">
+              <div class="card-header collapsible-header" onclick="AllianceApp.toggleCardCollapse('telemetry-status-card')">
+                <span><span class="collapse-icon">▾</span> <span data-i18n="telemetry_header">MATCH TELEMETRY & SETTINGS</span></span>
+              </div>
+              <div class="collapsible-body" id="telemetry-status-body">
+                <div class="telemetry-row">
+                  <span data-i18n="match_status_label">Match Status:</span>
+                  <span class="range-badge" id="telemetry-match-status">ACTIVE</span>
+                </div>
+                <div class="telemetry-row">
+                  <span data-i18n="living_players_label">Living Players:</span>
+                  <span id="telemetry-living-players" style="font-weight: bold; color: var(--matrix-mint);">0</span>
+                </div>
+                <button class="btn-outline" style="width: 100%; margin-top: 8px; font-size: 0.82rem; padding: 6px;" onclick="AllianceApp.openLobbySettingsAuditModal()" data-i18n="btn_lobby_settings">
+                  Match Settings & Audit
+                </button>
+              </div>
+            </div>
+
+            <!-- History Replay Scrubber -->
+            <div class="acrylic-card collapsible-card replay-scrubber-card" id="replay-scrubber-card">
+              <div class="card-header collapsible-header" onclick="AllianceApp.toggleCardCollapse('replay-scrubber-card')">
+                <span><span class="collapse-icon">▾</span> <span data-i18n="replay_scrubber_label">HISTORY REPLAY SCRUBBER</span></span>
+                <span id="replay-status-label" style="font-size: 0.72rem; color: var(--energy-amber); font-weight: bold;" data-i18n="replay_live">LIVE STATE</span>
+              </div>
+              <div class="collapsible-body" id="replay-scrubber-body">
+                <div class="replay-scrubber-bar" style="border: none; padding: 0; background: transparent;">
+                  <input type="range" class="replay-slider" id="replay-scrubber-slider" min="1" max="1" value="1" disabled>
+                </div>
+              </div>
+            </div>
+
+            <!-- Playtest Admin Tools Card -->
+            <div class="acrylic-card collapsible-card" id="playtest-admin-panel" style="display:none; border-color: var(--primary-cyan); background: rgba(0, 240, 255, 0.05);">
+              <div class="card-header collapsible-header" onclick="AllianceApp.toggleCardCollapse('playtest-admin-panel')" style="color: var(--primary-cyan); font-weight: bold;">
+                <span><span class="collapse-icon">▾</span> <span data-i18n="playtest_admin_title">PLAYTEST CONTROLS (ADMIN)</span></span>
+              </div>
+              <div class="collapsible-body" id="playtest-admin-body">
+                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">
+                  Playtest match detected. Admins can award action points and command bots directly.
+                </div>
+                <button class="btn-cyan" style="width: 100%; margin-bottom: 12px; padding: 7px;" onclick="AllianceApp.awardPlaytestAp(1)" data-i18n="playtest_award_ap">
+                  +1 AP to All Living Players
+                </button>
+                <div style="border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+                  <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 6px;" data-i18n="playtest_control_bot">
+                    Control Bot:
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <select id="playtest-bot-select" class="form-select" style="font-size: 0.8rem; padding: 6px;"></select>
+                    <div style="display: flex; gap: 6px;">
+                      <select id="playtest-bot-action-type" class="form-select" style="flex: 1; font-size: 0.8rem; padding: 6px;">
+                        <option value="MOVE_N">Move North (▲ N)</option>
+                        <option value="MOVE_S">Move South (▼ S)</option>
+                        <option value="MOVE_E">Move East (► E)</option>
+                        <option value="MOVE_W">Move West (◄ W)</option>
+                        <option value="UPGRADE_RANGE">Upgrade Range</option>
+                        <option value="VOTE_CONFERENCE" data-i18n="bot_action_vote_conference">Vote for Conference</option>
+                        <option value="CONFERENCE_AGREE" data-i18n="bot_action_conference_agree">Conference: AGREE (Peace)</option>
+                        <option value="CONFERENCE_REJECT" data-i18n="bot_action_conference_reject">Conference: REJECT (Dissent)</option>
+                      </select>
+                      <button class="btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="AllianceApp.executePlaytestBotCommand()" data-i18n="playtest_execute_bot">
+                        Execute
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 3. Expandable Command Center Drawer (Slides up to bottom of vitals header) -->
+          <div class="command-center-drawer" id="command-center-drawer">
+            <div class="drawer-header">
+              <div class="drawer-title" data-i18n="command_center_title">TACTICAL COMMAND CENTER</div>
+              <button type="button" class="drawer-close-btn" onclick="AllianceApp.collapseCommandDrawer()" title="Close Controls">✕</button>
+            </div>
+            <div class="drawer-content">
+              <!-- Instant Mode Toggle -->
+              <label class="form-checkbox-label" style="font-size: 0.8rem; margin-bottom: 12px; background: rgba(0,240,255,0.06); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(0,240,255,0.2);">
+                <input type="checkbox" id="instant-mode-toggle" onchange="AllianceApp.toggleInstantMode(this.checked)">
+                <span data-i18n="instant_mode_label" style="font-weight: 600; color: var(--primary-cyan);">Instant Action Mode (Apply on tap)</span>
+              </label>
+
+              <!-- Directional Navigation Grid (Square D-Pad) -->
+              <div class="dpad-square-container">
+                <div class="dpad-grid">
+                  <div></div>
+                  <button type="button" class="dpad-btn" onclick="AllianceApp.quickMove(0, -1)" title="Move North" data-i18n-title="btn_quick_north">▲</button>
+                  <div></div>
+                  <button type="button" class="dpad-btn" onclick="AllianceApp.quickMove(-1, 0)" title="Move West" data-i18n-title="btn_quick_west">◄</button>
+                  <button type="button" class="dpad-center-btn" onclick="AllianceApp.quickUpgradeRange()" title="Upgrade Reach" data-i18n-title="btn_quick_upgrade">⛯</button>
+                  <button type="button" class="dpad-btn" onclick="AllianceApp.quickMove(1, 0)" title="Move East" data-i18n-title="btn_quick_east">►</button>
+                  <div></div>
+                  <button type="button" class="dpad-btn" onclick="AllianceApp.quickMove(0, 1)" title="Move South" data-i18n-title="btn_quick_south">▼</button>
+                  <div></div>
+                </div>
+              </div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 8px;" data-i18n="dpad_tip">
+                Tap arrows to move (1 AP). Tap center (⛯) to upgrade interaction reach.
+              </div>
+
+              <!-- Players in Range inside Command Center -->
+              <div class="drawer-section" style="margin-top: 12px; border-top: 1px solid var(--border-subtle); padding-top: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <span style="font-size: 0.78rem; font-family: var(--font-mono); color: var(--energy-amber); text-transform: uppercase;" data-i18n="targets_in_range_title">Players in Range</span>
+                  <span class="pill-badge" id="drawer-targets-count">0</span>
+                </div>
+                <div id="drawer-targets-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto;">
+                  <span style="color: var(--text-muted); font-size: 0.78rem;" data-i18n="no_targets_in_range">No players within interaction reach.</span>
+                </div>
+              </div>
+
+              <!-- Queued Commands & Execution inside Command Center -->
+              <div class="drawer-section" style="margin-top: 12px; border-top: 1px solid var(--border-subtle); padding-top: 8px;">
+                <div style="font-size: 0.78rem; font-family: var(--font-mono); color: var(--primary-cyan); text-transform: uppercase; margin-bottom: 6px;" data-i18n="batch_queue_label">Queued Commands</div>
+                <div id="drawer-batch-list" style="max-height: 80px; overflow-y: auto; background: rgba(0,0,0,0.25); padding: 6px; border-radius: var(--radius-sm); margin-bottom: 8px;">
+                  <span style="color: var(--text-muted); font-size: 0.75rem;" data-i18n="batch_empty_hint">No queued commands.</span>
+                </div>
+                <div class="batch-actions-row">
+                  <button type="button" class="btn-outline btn-batch-sub" id="btn-drawer-undo" onclick="AllianceApp.undoLastAction()" title="Undo Last Command" data-i18n-title="btn_undo_last">↩</button>
+                  <button type="button" class="btn-outline btn-batch-sub btn-batch-clear" id="btn-drawer-clear" onclick="AllianceApp.clearBatch()" title="Clear Commands" data-i18n-title="btn_clear_batch">✕</button>
+                  <button type="button" class="btn-cyan btn-batch-submit" id="drawer-submit-batch-btn" disabled onclick="AllianceApp.submitBatch()">
+                    <span id="drawer-submit-batch-label" data-i18n="btn_submit_actions">Execute Batch (0 AP)</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Pinned Batch Footer (Always visible at bottom of right column) -->
+          <div class="pinned-batch-footer" id="pinned-batch-footer">
+            <!-- Expand / Swipe Handle -->
+            <div class="drawer-handle-bar" id="drawer-handle-bar" onclick="AllianceApp.toggleCommandDrawer()">
+              <div class="drawer-handle-pill"></div>
+              <div class="drawer-handle-label">
+                <span id="drawer-handle-icon">▲</span> <span id="drawer-handle-text" data-i18n="drawer_expand_controls">EXPAND COMMAND CONTROLS</span>
+              </div>
+            </div>
+
+            <!-- Compact Quick Controls (Visible when drawer is collapsed) -->
+            <div class="compact-quick-bar" id="compact-quick-bar">
+              <div class="compact-arrows-group">
+                <button type="button" class="btn-compact-arrow" onclick="AllianceApp.quickMove(0, -1)" title="North">▲</button>
+                <button type="button" class="btn-compact-arrow" onclick="AllianceApp.quickMove(-1, 0)" title="West">◄</button>
+                <button type="button" class="btn-compact-arrow" onclick="AllianceApp.quickMove(1, 0)" title="East">►</button>
+                <button type="button" class="btn-compact-arrow" onclick="AllianceApp.quickMove(0, 1)" title="South">▼</button>
+              </div>
+              <button type="button" class="btn-compact-center" onclick="AllianceApp.quickUpgradeRange()" title="Upgrade Reach">⛯</button>
+            </div>
+
+            <!-- Scrollable Pending Operations List (Fixed height) -->
+            <div class="batch-items-scroll" id="batch-items-scroll">
+              <div id="batch-list">
+                <span style="color: var(--text-muted); font-size: 0.8rem;" data-i18n="batch_empty_hint">No queued commands. Tap map, arrows, or targets.</span>
+              </div>
+            </div>
+
+            <!-- Batch Action Execution Buttons -->
+            <div class="batch-actions-row">
+              <button type="button" class="btn-outline btn-batch-sub" id="btn-undo-batch" onclick="AllianceApp.undoLastAction()" title="Undo Last Command" data-i18n-title="btn_undo_last">↩</button>
+              <button type="button" class="btn-outline btn-batch-sub btn-batch-clear" id="btn-clear-batch" onclick="AllianceApp.clearBatch()" title="Clear Commands" data-i18n-title="btn_clear_batch">✕</button>
+              <button type="button" class="btn-cyan btn-batch-submit" id="submit-batch-btn" disabled onclick="AllianceApp.submitBatch()">
+                <span id="submit-batch-label" data-i18n="btn_submit_actions">Execute Batch (0 AP)</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- View: Lobbies -->
+    <div class="view-container" id="lobbies-view">
+      <div style="width: 100%; max-width: 900px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2 style="font-family: var(--font-display); color: var(--primary-cyan);" data-i18n="nav_lobbies">Tactical Match Lobbies</h2>
+          <button class="btn-cyan" onclick="AllianceApp.openCreateGameModal()" data-i18n="btn_create_lobby">+ Create Lobby</button>
+        </div>
+        <div id="lobby-list"></div>
+      </div>
+    </div>
+
+    <!-- View: Rulebook & Simulator -->
+    <div class="view-container" id="rules-view">
+      <!-- Guest unauthenticated notice banner -->
+      <div id="rules-unauth-banner" style="display: none; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: var(--radius-sm); padding: 4px 10px; margin-bottom: 8px; justify-content: space-between; align-items: center; font-size: 0.75rem;">
+        <span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 8px;" data-i18n="rules_unauth_notice">Guest Mode: Tactical Field Manual</span>
+        <button class="btn-cyan" style="padding: 2px 8px; font-size: 0.72rem; white-space: nowrap;" onclick="AllianceApp.showView('auth-view')" data-i18n="rules_unauth_login_btn">Sign In / Register</button>
+      </div>
+
+      <div class="rules-layout-grid">
+        <!-- Simulator Panel -->
+        <div class="acrylic-card">
+          <div class="card-header" data-i18n="simulator_title">Tactical Hologram Simulator</div>
+          <div style="display: flex; justify-content: center; margin: 10px 0; overflow: hidden;">
+            <canvas id="simulator-canvas" style="background: #090D14; border: 1px solid var(--border-subtle); border-radius: 8px;"></canvas>
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 10px;">
+            <button class="btn-outline" style="flex: 1;" onclick="AllianceApp.simulator.upgradeRange()">Upgrade Range</button>
+            <button class="btn-outline" style="flex: 1;" onclick="AllianceApp.simulator.reset()">Reset</button>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px;" data-i18n="simulator_instructions">
+            Test movement, range footprints, and burst batches in a zero-stakes virtual simulation. Grid expands dynamically as range upgrades.
+          </p>
+        </div>
+
+        <!-- Authoritative Bilingual Rules -->
+        <div class="acrylic-card" style="overflow-y: auto; max-height: calc(100vh - 120px);">
+          <h2 style="font-family: var(--font-display); color: var(--primary-cyan); margin-bottom: 16px;" data-i18n="rules_title">
+            Official Alliance Tactical Rulebook
+          </h2>
+          <div id="rules-content-body">
+            <h3 style="margin-top: 14px; font-size: 1rem;" data-i18n="rules_objective_title">1. Mission Objective &amp; The 3 Ways to Win</h3>
+            <p style="color: var(--text-secondary); margin-top: 4px; font-size: 0.88rem;" data-i18n="rules_objective_text">
+              Alliance is a persistent, asynchronous social-strategy wargame played on an open coordinate matrix. A match concludes in exactly one of three ways:
+            </p>
+            <ul style="color: var(--text-secondary); margin: 6px 0 0 20px; line-height: 1.6; font-size: 0.88rem;">
+              <li><strong>1. Sole Survivor (Last Player Standing):</strong> Play continues until only one living player occupies the grid.</li>
+              <li><strong>2. The Peace Accord (Diplomatic Conference):</strong> When living players assemble a conference, all participants cast ballots. Unanimous agreement yields a shared Collective Victory; dissenting players trigger the configured betrayal outcome (Instant Betrayal Victory, Grant AP &amp; Resume Play, or Resume Play).</li>
+              <li><strong>3. Inactivity Timeout:</strong> Matches with no action or movement within the stagnation deadline resolve automatically.</li>
+            </ul>
+
+            <h3 style="margin-top: 14px; font-size: 1rem;" data-i18n="rules_economy_title">2. The AP Economy &amp; Daily Drop</h3>
+            <p style="color: var(--text-secondary); margin-top: 4px; font-size: 0.88rem;" data-i18n="rules_economy_text">
+              Every 24 hours at the scheduled server drop hour, all living units receive +1 AP. AP never expires and can be hoarded for multi-action blitzes. When a player is eliminated, all banked AP is lost.
+            </p>
+
+            <h3 style="margin-top: 14px; font-size: 1rem;" data-i18n="rules_actions_title">3. Tactical Operations</h3>
+            <ul style="color: var(--text-secondary); margin: 8px 0 0 20px; line-height: 1.6; font-size: 0.88rem;">
+              <li data-i18n="rules_actions_move"><strong>MANEUVER (1 AP):</strong> Shift 1 tile orthogonally (N, S, E, W). Diagonals and jumping through players are prohibited.</li>
+              <li data-i18n="rules_actions_attack"><strong>STRIKE (1 AP):</strong> Strike any enemy inside your range perimeter. Deals 1 Heart damage. Line of fire is unobstructed.</li>
+              <li data-i18n="rules_actions_give"><strong>TRANSFER AID (1 AP):</strong> Transfer 1 AP from your balance to any ally inside your interaction range (0 fee by default).</li>
+              <li data-i18n="rules_actions_upgrade"><strong>UPGRADE RANGE (2 AP):</strong> Permanently expands your interaction footprint outward.</li>
+            </ul>
+
+            <h3 style="margin-top: 14px; font-size: 1rem;" data-i18n="rules_range_title">4. Interaction Range Geometry &amp; Line of Sight</h3>
+            <p style="color: var(--text-secondary); margin-top: 4px; font-size: 0.88rem;">
+              All attacks and aid transfers require line-of-engagement within your Range perimeter. Units do not block line of fire; you may strike over intervening players. Range Level <em>L</em> spans a core square of radius <em>R = L + 1</em> plus 4 orthogonal cardinal spikes at distance <em>R + 1</em>:
+            </p>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
+              <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); padding: 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.78rem;">
+                <div style="color: var(--primary-cyan); font-weight: bold; margin-bottom: 4px;">Level 1 Range Perimeter:</div>
+<pre style="margin: 0; color: var(--matrix-mint); line-height: 1.2;">
+- - - x - - -
+- x x x x x -
+- x x x x x -
+x x x P x x x
+- x x x x x -
+- x x x x x -
+- - - x - - -</pre>
+              </div>
+              <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); padding: 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.78rem;">
+                <div style="color: var(--energy-amber); font-weight: bold; margin-bottom: 4px;">Level 2 Range Perimeter:</div>
+<pre style="margin: 0; color: var(--matrix-mint); line-height: 1.2;">
+- - - - x - - - -
+- x x x x x x x -
+- x x x x x x x -
+- x x x x x x x -
+x x x x P x x x x
+- x x x x x x x -
+- x x x x x x x -
+- x x x x x x x -
+- - - - x - - - -</pre>
+              </div>
+            </div>
+
+            <h3 style="margin-top: 14px; font-size: 1rem;" data-i18n="rules_fow_title">5. Fog of War &amp; Concealed Fire</h3>
+            <p style="color: var(--text-secondary); margin-top: 4px; font-size: 0.88rem;" data-i18n="rules_fow_text">
+              Opponents' exact Hearts and AP reserves are strictly confidential. When a player is struck by non-lethal fire, they receive a private alert that they took 1 damage, but the shooter's identity remains completely unknown. Only fatal strikes (reducing a player to 0 Hearts) reveal the killer's call-sign.
+            </p>
+
+            <h3 style="margin-top: 14px; font-size: 1rem;">6. The Diplomatic Conference &amp; Peace Voting</h3>
+            <p style="color: var(--text-secondary); margin-top: 4px; font-size: 0.88rem;">
+              Players vote to convene a conference. When living votes reach the Trigger Threshold (default 100%), deliberations open with a timed countdown window.
+            </p>
+            <ul style="color: var(--text-secondary); margin: 6px 0 0 20px; line-height: 1.6; font-size: 0.88rem;">
+              <li><strong>Treaty Ratification Rule (Silence is Not Consent):</strong> Any player who abstains or fails to vote before the countdown expires is officially recorded as dissenting (refusing peace).</li>
+              <li><strong>Unanimous Peace (100% Agree):</strong> All survivors win together in a Collective Victory.</li>
+              <li><strong>Single or Multiple Dissenters:</strong> Resolves according to lobby rules into one of three streamlined outcomes: Instant Betrayal Victory, Grant AP &amp; Resume Combat, or Resume Combat.</li>
+              <li><strong>Default Transparency:</strong> Individual ballots remain secret throughout deliberations; aggregate counts for and against are published upon conclusion.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Integrity & Settings Changelog -->
+    <div class="view-container" id="changelog-view">
+      <div style="width: 100%; max-width: 900px; margin: 0 auto;">
+        <h2 style="margin-bottom: 16px; font-family: var(--font-display); color: var(--primary-cyan);" data-i18n="nav_changelog">
+          Integrity & Settings Changelog
+        </h2>
+        <div class="acrylic-card">
+          <div class="card-header">IMMUTABLE PARAMETER AUDIT TRAIL</div>
+          <table style="width: 100%; text-align: left; border-collapse: collapse; font-size: 0.85rem;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-subtle); color: var(--text-muted);">
+                <th style="padding: 10px;" data-i18n="th_timestamp">Timestamp (Server Time)</th>
+                <th style="padding: 10px;" data-i18n="th_parameter">Parameter</th>
+                <th style="padding: 10px;" data-i18n="th_old_value">Old Value</th>
+                <th style="padding: 10px;" data-i18n="th_new_value">New Value</th>
+                <th style="padding: 10px;" data-i18n="th_initiator">Initiator</th>
+              </tr>
+            </thead>
+            <tbody id="audit-log-tbody">
+              <tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-muted);" data-i18n="audit_no_logs">No mid-game parameter modifications recorded.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Admin Control (Comprehensive Settings, Invites, Users) -->
+    <div class="view-container" id="admin-view">
+      <div style="width: 100%; max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+        <h2 style="font-family: var(--font-display); color: var(--primary-cyan);" data-i18n="admin_title">
+          System Administration & Governance
+        </h2>
+
+        <!-- Admin System Settings Card -->
+        <div class="acrylic-card">
+          <div class="card-header" data-i18n="admin_registrations">User Registration Policy</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div style="font-size: 1rem; font-weight: bold; margin-bottom: 4px;" id="admin-reg-status-text">
+                Registrations: ENABLED
+              </div>
+              <div style="font-size: 0.82rem; color: var(--text-secondary);" data-i18n="admin_reg_desc">
+                When registrations are disabled, prospective operatives must possess a valid invite token to register.
+              </div>
+            </div>
+            <button class="btn-cyan" onclick="AllianceApp.toggleAdminRegistrations()" data-i18n="admin_toggle_reg">
+              Toggle Public Registrations
+            </button>
+          </div>
+        </div>
+
+        <!-- Invite Links & Generator Card -->
+        <div class="acrylic-card">
+          <div class="card-header" data-i18n="admin_invites">Invite Links & Tokens</div>
+          <div class="form-grid-2" style="margin-bottom: 16px;">
+            <div class="form-group">
+              <label data-i18n="admin_custom_invite_code">Custom Invite Code (Optional)</label>
+              <input type="text" id="admin-invite-code" class="form-input" placeholder="Auto-generated if left blank" data-i18n-placeholder="admin_invite_placeholder">
+            </div>
+            <div class="form-group">
+              <label data-i18n="admin_max_uses">Max Uses Allowed</label>
+              <input type="number" id="admin-invite-uses" class="form-input" value="1" min="1" max="100">
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 14px;">
+            <button class="btn-cyan" onclick="AllianceApp.createInviteToken()" data-i18n="btn_generate_invite">
+              + Generate Invite Token
+            </button>
+          </div>
+
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_invite_token">Invite Token</th>
+                <th data-i18n="th_created_by">Created By</th>
+                <th data-i18n="th_expires">Expires</th>
+                <th data-i18n="th_uses_left">Uses Left</th>
+                <th data-i18n="th_actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-invites-tbody">
+              <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;" data-i18n="admin_no_invites">No active invite tokens.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- User Management Card -->
+        <div class="acrylic-card">
+          <div class="card-header" data-i18n="admin_user_mgmt">User Directory & Role Management</div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_player">Operative</th>
+                <th data-i18n="th_flag">Flag</th>
+                <th data-i18n="th_role">Role</th>
+                <th data-i18n="th_matches">Matches</th>
+                <th data-i18n="th_registered_time">Enlisted (Server Time)</th>
+                <th data-i18n="th_actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-tbody">
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 16px;" data-i18n="admin_loading_users">Loading directory...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Database Backup & Disaster Recovery Card -->
+        <div class="acrylic-card">
+          <div class="card-header" data-i18n="admin_backup_title">Database Backup & Disaster Recovery</div>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 14px;" data-i18n="admin_backup_desc">
+            Export entire grid database snapshot to JSON or restore from a snapshot file.
+          </p>
+          <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+            <button class="btn-cyan" onclick="AllianceApp.downloadBackup()" data-i18n="admin_btn_download_backup">
+              Download JSON Backup
+            </button>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <div class="file-upload-wrapper">
+                <input type="file" id="admin-restore-file" accept=".json" style="display: none;" onchange="AllianceApp.handleRestoreFileChange(this)">
+                <button type="button" class="file-upload-btn" onclick="document.getElementById('admin-restore-file').click()" data-i18n="btn_choose_restore_file">Choose JSON File</button>
+                <span id="admin-restore-filename" style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="admin_no_file_chosen">No file selected</span>
+              </div>
+              <button class="btn-outline" style="border-color: var(--accent-magenta); color: var(--accent-magenta);" onclick="AllianceApp.restoreBackupFile()" data-i18n="admin_btn_restore_backup">
+                Restore from File
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal: Create Game Lobby (Comprehensive Settings) -->
+  <div class="modal-overlay" id="modal-create-game">
+    <div class="modal-content modal-wide">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="color: var(--primary-cyan); font-family: var(--font-display);">Configure & Launch Match Lobby</h3>
+        <button class="btn-outline modal-close" style="padding: 4px 10px; font-size: 0.8rem;">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label><span data-i18n="cfg_lobby_name">Match Name</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_lobby_name">Unique public name displayed in match lobbies.</span></span></label>
+        <input type="text" id="cfg-name" class="form-input" value="Grid Arena Alpha" required maxlength="50">
+      </div>
+
+      <!-- Playtest Mode Checkbox -->
+      <label class="form-checkbox-label" style="background: rgba(0, 240, 255, 0.08); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--primary-cyan); margin-bottom: 14px;">
+        <input type="checkbox" id="cfg-is-playtest">
+        <span style="font-weight: bold; color: var(--primary-cyan);" data-i18n="playtest_mode_label">Playtest Mode (Admins & Bots Only)</span>
+        <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_playtest_mode">Enables bot controls, instant AP distribution, and rapid testing mechanics for room administrators.</span></span>
+      </label>
+
+      <h4 style="font-size: 0.85rem; color: var(--energy-amber); text-transform: uppercase; margin: 16px 0 8px 0; font-family: var(--font-mono);" data-i18n="cfg_dimensions_timing">
+        1. Grid Dimensions & Drop Timing
+      </h4>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label><span data-i18n="cfg_board_width">Board Width (Columns: 5 - 50)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_board_width">Total horizontal columns in the tactical matrix (5-50).</span></span></label>
+          <input type="number" id="cfg-width" class="form-input" value="15" min="5" max="50">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_board_height">Board Height (Rows: 5 - 50)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_board_height">Total vertical rows in the tactical matrix (5-50).</span></span></label>
+          <input type="number" id="cfg-height" class="form-input" value="15" min="5" max="50">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_first_ap_days">Grace Period (Days Before First Drop: 0 - 30)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_first_ap_days">Grace period before the first AP distribution occurs.</span></span></label>
+          <input type="number" id="cfg-first-ap-days" class="form-input" value="1" min="0" max="30">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_drop_amount">AP Awarded Per Daily Drop (1 - 10)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_drop_amount">How many AP points each living unit receives every 24 hours.</span></span></label>
+          <input type="number" id="cfg-drop-amount" class="form-input" value="1" min="1" max="10">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="ap_distribution_server_time">Daily AP Drop Time (Server Time)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_drop_time">Daily clock hour in server time when +1 AP drops.</span></span></label>
+          <input type="time" id="cfg-ap-drop-server-time" class="form-input" value="22:00">
+        </div>
+      </div>
+
+      <h4 style="font-size: 0.85rem; color: var(--energy-amber); text-transform: uppercase; margin: 16px 0 8px 0; font-family: var(--font-mono);" data-i18n="cfg_vitals_economy">
+        2. Starting Vitals & Action Economy
+      </h4>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label><span data-i18n="cfg_burst_cap">Burst Cap (Max AP per Payload: 1 - 10)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_burst_cap">Maximum AP that can be consumed in a single command payload.</span></span></label>
+          <input type="number" id="cfg-burst-cap" class="form-input" value="3" min="1" max="10">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_starting_hp">Starting Hearts (1 - 10)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_starting_hp">Initial health points (Hearts) assigned upon deployment.</span></span></label>
+          <input type="number" id="cfg-starting-hp" class="form-input" value="3" min="1" max="10">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_starting_ap">Starting Action Points (0 - 10)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_starting_ap">Action points available immediately upon deployment.</span></span></label>
+          <input type="number" id="cfg-starting-ap" class="form-input" value="0" min="0" max="10">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_starting_range">Starting Range Tier (1 - 5)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_starting_range">Initial interaction footprint (Tier 1 = 5x5 box + 4 cardinal spikes).</span></span></label>
+          <input type="number" id="cfg-starting-range" class="form-input" value="1" min="1" max="5">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_cost_move">Move Cost (AP)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_move_cost">AP required to move 1 orthogonal step.</span></span></label>
+          <input type="number" id="cfg-cost-move" class="form-input" value="1" min="1" max="5">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_cost_attack">Strike Cost (AP)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_attack_cost">AP required to strike an enemy in range for 1 damage.</span></span></label>
+          <input type="number" id="cfg-cost-attack" class="form-input" value="1" min="1" max="5">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_cost_give">Transfer AP Fee (AP, 0 = Free)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_give_cost">Fee required to transfer 1 AP to another operative (0 = free).</span></span></label>
+          <input type="number" id="cfg-cost-give" class="form-input" value="0" min="0" max="5">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_cost_upgrade_base">Range Upgrade Base Cost (AP)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_upgrade_base">Base AP required to expand interaction reach.</span></span></label>
+          <input type="number" id="cfg-cost-upgrade-base" class="form-input" value="2" min="1" max="10">
+        </div>
+      </div>
+
+      <h4 style="font-size: 0.85rem; color: var(--energy-amber); text-transform: uppercase; margin: 16px 0 8px 0; font-family: var(--font-mono);" data-i18n="cfg_win_resolutions">
+        3. Victory Conditions & Diplomatic Resolutions
+      </h4>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="cfg-win-last-man" checked>
+          <span data-i18n="cfg_win_last_man_label">Enable Sole Survivor Victory (Single Surviving Player)</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_win_last_man">Game concludes when only one active player remains on the board.</span></span>
+        </label>
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="cfg-win-armistice" checked>
+          <span data-i18n="cfg_win_armistice_label">Enable Diplomatic Conference (Peace Accord)</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_win_armistice">Allows active players to convene a diplomatic conference to achieve a collective peace victory.</span></span>
+        </label>
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="cfg-armistice-hide-votes">
+          <span data-i18n="hide_armistice_votes_label">Hide Armistice Voter Count (Keep peace ballots classified)</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_armistice_hide">Conceals the count of peace ballots to prevent premature signaling.</span></span>
+        </label>
+      </div>
+
+      <div class="form-grid-2" style="margin-top: 10px;">
+        <div class="form-group">
+          <label>Armistice Trigger Threshold (0.1 - 1.0) <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_armistice_threshold">Fraction of surviving players needed to trigger conference (1.0 = 100%).</span></span></label>
+          <input type="number" id="cfg-armistice-trigger-threshold" class="form-input" value="1.0" min="0.1" max="1.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label>Conference Duration (Seconds: 15 - 3600) <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_conference_duration">Duration the conference countdown window stays open for votes.</span></span></label>
+          <input type="number" id="cfg-conference-duration" class="form-input" value="120" min="15" max="3600">
+        </div>
+      </div>
+
+      <div class="form-grid-2" style="margin-top: 8px;">
+        <div class="form-group">
+          <label><span data-i18n="conference_transparency_label">Conference Transparency Mode</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_transparency">Regulates vote visibility during a convened Diplomatic Conference.</span></span></label>
+          <select id="cfg-conference-transparency" class="form-select">
+            <option value="REVEAL_COUNTS_AT_END" data-i18n="transparency_counts_at_end" selected>Hide votes during conference, reveal counts at end</option>
+            <option value="SHOW_ALL_VOTES" data-i18n="transparency_show_all">Show how each player votes</option>
+            <option value="SHOW_TOTAL_AGREE" data-i18n="transparency_show_total">Show total number of players who agreed</option>
+            <option value="SECRET_RESOLVE" data-i18n="transparency_secret_resolve">Keep votes secret throughout, resolve directly</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_conference_end_condition_label">Conference Conclusion Rule</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_conference_end_condition">Determines whether the conference resolves as soon as all active players have cast ballots, or stays open until the countdown timer expires.</span></span></label>
+          <select id="cfg-conference-end-condition" class="form-select">
+            <option value="ON_ALL_VOTED" data-i18n="conf_end_all_voted" selected>End once everyone votes (or on timer)</option>
+            <option value="TIMER_ONLY" data-i18n="conf_end_timer_only">Only end once timer runs out</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Single Choice Consequence Configuration (Circle Tickboxes) -->
+      <div class="consequence-box" style="margin-top: 10px;">
+        <div style="font-weight: bold; font-size: 0.85rem; color: var(--primary-cyan); margin-bottom: 8px;">
+          <span data-i18n="cfg_single_outcome_label">Single Dissenter Consequences (Exactly 1 Disagrees)</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_single_outcome">Consequence enacted if exactly one player votes against peace or abstains.</span></span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <label class="form-radio-label">
+            <input type="radio" name="cfg-single-outcome" value="INSTANT_WIN" onchange="AllianceApp.handleSingleOutcomeChange(this)">
+            <span data-i18n="consequence_instant_win">Instant Win</span>
+            <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_instant_win">Dissenter immediately wins the match alone by sabotaging the accord.</span></span>
+          </label>
+          <label class="form-radio-label">
+            <input type="radio" name="cfg-single-outcome" value="GRANT_AP" checked onchange="AllianceApp.handleSingleOutcomeChange(this)">
+            <span data-i18n="consequence_grant_ap">Grant AP &amp; Resume Combat</span>
+            <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_grant_ap">Dissenter receives bonus Action Points and the match resumes.</span></span>
+          </label>
+          <label class="form-radio-label">
+            <input type="radio" name="cfg-single-outcome" value="RESUME_COMBAT" onchange="AllianceApp.handleSingleOutcomeChange(this)">
+            <span data-i18n="consequence_resume_combat">Resume Combat</span>
+            <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_resume_combat">The conference dissolves without bonuses and normal play resumes.</span></span>
+          </label>
+        </div>
+        <div class="form-group" id="cfg-rogue-bonus-group" style="margin-top: 8px;">
+          <label style="font-size: 0.78rem;"><span data-i18n="cfg_rogue_bonus_label">Bonus AP Awarded to Lone Dissenter</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_rogue_bonus">Bonus Action Points awarded to the lone dissenter if Grant AP is selected.</span></span></label>
+          <input type="number" id="cfg-rogue-bonus" class="form-input" value="3" min="1" max="10" style="padding: 4px 8px; font-size: 0.82rem;">
+        </div>
+      </div>
+
+      <div class="consequence-box" style="margin-top: 10px;">
+        <div style="font-weight: bold; font-size: 0.85rem; color: var(--accent-magenta); margin-bottom: 8px;">
+          <span data-i18n="cfg_multi_outcome_label">Multiple Dissenters Consequences (>1 Disagree)</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_multi_outcome">Consequence enacted if two or more players vote against peace or abstain.</span></span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <label class="form-radio-label">
+            <input type="radio" name="cfg-multi-outcome" value="INSTANT_WIN" onchange="AllianceApp.handleMultiOutcomeChange(this)">
+            <span data-i18n="consequence_instant_win">Instant Win</span>
+            <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_instant_win">Dissenters share a collective betrayal victory by sabotaging the accord.</span></span>
+          </label>
+          <label class="form-radio-label">
+            <input type="radio" name="cfg-multi-outcome" value="GRANT_AP" onchange="AllianceApp.handleMultiOutcomeChange(this)">
+            <span data-i18n="consequence_grant_ap">Grant AP &amp; Resume Combat</span>
+            <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_grant_ap">Each dissenter receives bonus Action Points and the match resumes.</span></span>
+          </label>
+          <label class="form-radio-label">
+            <input type="radio" name="cfg-multi-outcome" value="RESUME_COMBAT" checked onchange="AllianceApp.handleMultiOutcomeChange(this)">
+            <span data-i18n="consequence_resume_combat">Resume Combat</span>
+            <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_resume_combat">The conference dissolves without bonuses and normal play resumes.</span></span>
+          </label>
+        </div>
+        <div class="form-group" id="cfg-multi-bonus-group" style="margin-top: 8px; display: none;">
+          <label style="font-size: 0.78rem;"><span data-i18n="cfg_multi_bonus_label">Bonus AP Awarded to Each Dissenter</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_multi_bonus">Bonus Action Points awarded to each dissenting player if Grant AP is selected.</span></span></label>
+          <input type="number" id="cfg-multi-disagree-bonus" class="form-input" value="2" min="1" max="10" style="padding: 4px 8px; font-size: 0.82rem;">
+        </div>
+      </div>
+
+      <h4 style="font-size: 0.85rem; color: var(--energy-amber); text-transform: uppercase; margin: 16px 0 8px 0; font-family: var(--font-mono);" data-i18n="cfg_pace_secrecy">
+        4. Game Pace & Secrecy Rules
+      </h4>
+      <div style="margin-top: 6px;">
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="cfg-win-stagnation">
+          <span data-i18n="cfg_win_stagnation_label">Enable Inactivity Stagnation Clock</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_stagnation">Automatically concludes the game or shrinks board if no player moves or acts for several days.</span></span>
+        </label>
+      </div>
+      <div class="form-grid-2" style="margin-top: 6px;">
+        <div class="form-group">
+          <label><span data-i18n="cfg_stagnation_days_label">Stagnation Limit (Days without action)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_stagnation_days">Consecutive days without action before stagnation clock triggers.</span></span></label>
+          <input type="number" id="cfg-stagnation-days" class="form-input" value="5" min="1" max="30">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_stagnation_mode_label">Stagnation Resolution Mode</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_stagnation_mode">DRAW terminates in a draw; SUDDEN_DEATH shrinks outer grid borders.</span></span></label>
+          <select id="cfg-stagnation-mode" class="form-select">
+            <option value="DRAW">DRAW (Terminate match in Automatic Draw)</option>
+            <option value="SUDDEN_DEATH">SUDDEN_DEATH (Shrink board perimeter)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="cfg-reveal-killer">
+          <span data-i18n="cfg_reveal_killer_label">Reveal Eliminator in Public Elimination Broadcasts</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_reveal_killer">If enabled, public announcements reveal the username of who landed the decisive strike.</span></span>
+        </label>
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="cfg-allow-dead-chat" checked>
+          <span data-i18n="cfg_allow_dead_chat_label">Allow Eliminated Players to Send Messages in Chat</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_allow_dead_chat">Whether eliminated players can continue communicating in room chat.</span></span>
+        </label>
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="cfg-fog-of-war" checked>
+          <span data-i18n="cfg_fog_of_war_label">Enforce Strict Fog of War (Hide Opponent Hearts & AP)</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_fog_of_war">Hides opponent Hearts, Action Points, and Range tiers from direct inspection.</span></span>
+        </label>
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="cfg-audit-log" checked>
+          <span data-i18n="cfg_audit_log_label">Log Mid-Game Parameter Alterations to Public Audit Trail</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_audit_log">Maintains an immutable public audit trail of any settings modified mid-game by room admins.</span></span>
+        </label>
+      </div>
+
+      <h4 style="font-size: 0.85rem; color: var(--energy-amber); text-transform: uppercase; margin: 16px 0 8px 0; font-family: var(--font-mono);" data-i18n="cfg_v9_features_heading">
+        5. Late Join & Map Placement Voting
+      </h4>
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px;">
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="cfg-allow-late-join">
+          <span data-i18n="cfg_allow_late_join_label">Allow Late Join (Up to 3 hours before first AP drop with host approval)</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_allow_late_join">Allows new players to apply to join an active match until 3 hours prior to the first AP distribution. Host approval required.</span></span>
+        </label>
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="cfg-map-voting-enabled">
+          <span data-i18n="cfg_map_voting_label">Offer 4 Random Placement Options &amp; Ranked Choice Vote (RCV)</span>
+          <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_map_voting">Instead of automatic placement, generates 4 candidate maps and conducts an RCV election before match start.</span></span>
+        </label>
+        <div class="form-group" style="margin-top: 4px;">
+          <label><span data-i18n="cfg_map_voting_duration_label">Map Voting Duration (Minutes: 1 - 1440)</span></label>
+          <input type="number" id="cfg-map-voting-duration" class="form-input" value="10" min="1" max="1440">
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+        <button class="btn-outline modal-close" data-i18n="btn_close">Cancel</button>
+        <button class="btn-cyan" onclick="AllianceApp.createNewGame()" data-i18n="btn_launch_lobby">Launch Lobby</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Recreate Game Lobby -->
+  <div class="modal-overlay" id="modal-recreate-lobby">
+    <div class="modal-content modal-wide" style="max-height: 85vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="color: var(--primary-cyan); font-family: var(--font-display);" data-i18n="recreate_lobby_title">Recreate Match Lobby</h3>
+        <button class="btn-outline modal-close" style="padding: 4px 10px; font-size: 0.8rem;">✕</button>
+      </div>
+
+      <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--primary-cyan); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; font-size: 0.85rem; color: var(--primary-cyan);" id="recreate-lobby-info-banner">
+        All players currently enlisted in this match will be automatically transferred to the newly recreated lobby. You can modify any settings below, including grid dimensions.
+      </div>
+
+      <div class="form-group">
+        <label><span data-i18n="cfg_lobby_name">Match Name</span></label>
+        <input type="text" id="recreate-cfg-name" class="form-input" required maxlength="50">
+      </div>
+
+      <h4 style="font-size: 0.85rem; color: var(--energy-amber); text-transform: uppercase; margin: 16px 0 8px 0; font-family: var(--font-mono);" data-i18n="cfg_dimensions_timing">
+        Grid Dimensions & Drop Timing
+      </h4>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label><span data-i18n="cfg_board_width">Board Width (Columns: 5 - 50)</span></label>
+          <input type="number" id="recreate-cfg-width" class="form-input" value="15" min="5" max="50">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_board_height">Board Height (Rows: 5 - 50)</span></label>
+          <input type="number" id="recreate-cfg-height" class="form-input" value="15" min="5" max="50">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_first_ap_days">Grace Period (Days Before First Drop: 0 - 30)</span></label>
+          <input type="number" id="recreate-cfg-first-ap-days" class="form-input" value="1" min="0" max="30">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_drop_amount">AP Awarded Per Daily Drop (1 - 10)</span></label>
+          <input type="number" id="recreate-cfg-drop-amount" class="form-input" value="1" min="1" max="10">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="ap_distribution_server_time">Daily AP Drop Time (Server Time)</span></label>
+          <input type="time" id="recreate-cfg-ap-drop-server-time" class="form-input" value="22:00">
+        </div>
+      </div>
+
+      <h4 style="font-size: 0.85rem; color: var(--energy-amber); text-transform: uppercase; margin: 16px 0 8px 0; font-family: var(--font-mono);" data-i18n="cfg_vitals_economy">
+        Starting Vitals & Action Economy
+      </h4>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label><span data-i18n="cfg_burst_cap">Burst Cap (Max AP per Payload: 1 - 10)</span></label>
+          <input type="number" id="recreate-cfg-burst-cap" class="form-input" value="3" min="1" max="10">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_starting_hp">Starting Hearts (1 - 10)</span></label>
+          <input type="number" id="recreate-cfg-starting-hp" class="form-input" value="3" min="1" max="10">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_starting_ap">Starting Action Points (0 - 10)</span></label>
+          <input type="number" id="recreate-cfg-starting-ap" class="form-input" value="0" min="0" max="10">
+        </div>
+        <div class="form-group">
+          <label><span data-i18n="cfg_starting_range">Starting Range Tier (1 - 5)</span></label>
+          <input type="number" id="recreate-cfg-starting-range" class="form-input" value="1" min="1" max="5">
+        </div>
+      </div>
+
+      <h4 style="font-size: 0.85rem; color: var(--energy-amber); text-transform: uppercase; margin: 16px 0 8px 0; font-family: var(--font-mono);" data-i18n="cfg_v9_features_heading">
+        Late Join & Map Placement Voting
+      </h4>
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px;">
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="recreate-cfg-allow-late-join">
+          <span data-i18n="cfg_allow_late_join_label">Allow Late Join (Up to 3 hours before first AP drop with host approval)</span>
+        </label>
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="recreate-cfg-map-voting-enabled">
+          <span data-i18n="cfg_map_voting_label">Offer 4 Random Placement Options &amp; Ranked Choice Vote (RCV)</span>
+        </label>
+        <div class="form-group" style="margin-top: 4px;">
+          <label><span data-i18n="cfg_map_voting_duration_label">Map Voting Duration (Minutes: 1 - 1440)</span></label>
+          <input type="number" id="recreate-cfg-map-voting-duration" class="form-input" value="10" min="1" max="1440">
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-outline modal-close" data-i18n="btn_close">Cancel</button>
+        <button class="btn-cyan" id="btn-submit-recreate-lobby" onclick="AllianceApp.submitRecreateLobby()" data-i18n="btn_deploy_recreated_lobby">
+          Deploy Recreated Lobby
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: First Login Notification Enable Prompt -->
+  <div class="modal-overlay" id="modal-notif-prompt">
+    <div class="modal-content" style="max-width: 440px; text-align: center; border-color: var(--primary-cyan); background: rgba(9, 13, 20, 0.98); box-shadow: 0 0 35px rgba(0, 240, 255, 0.25);">
+      <div style="font-size: 2.2rem; margin-bottom: 8px;">🔔</div>
+      <h3 style="color: var(--primary-cyan); font-family: var(--font-display); margin-bottom: 10px;" data-i18n="notif_prompt_title">
+        Get Match Alerts on This Device
+      </h3>
+      <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;" data-i18n="notif_prompt_desc">
+        Receive instant alerts even when this tab is closed or your device is asleep.
+      </p>
+
+      <div style="text-align: left; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 14px; font-size: 0.82rem; color: var(--text-primary); line-height: 1.6;">
+        <div style="margin-bottom: 6px;"><strong style="color: var(--energy-amber);" data-i18n="notif_prompt_bullet_attacks_title">🎯 Enemy Attacks:</strong> <span data-i18n="notif_prompt_bullet_attacks_desc">Instant alerts when you take damage or an operative is eliminated.</span></div>
+        <div style="margin-bottom: 6px;"><strong style="color: var(--primary-cyan);" data-i18n="notif_prompt_bullet_conf_title">🕊️ Peace Conferences:</strong> <span data-i18n="notif_prompt_bullet_conf_desc">Countdown alerts so you never miss casting your peace ballot.</span></div>
+        <div><strong style="color: var(--matrix-mint);" data-i18n="notif_prompt_bullet_ap_title">⚡ AP Transfers:</strong> <span data-i18n="notif_prompt_bullet_ap_desc">Get notified whenever someone gives you Action Points.</span></div>
+      </div>
+
+      <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 18px; line-height: 1.4; background: rgba(255,255,255,0.03); border-radius: var(--radius-sm); padding: 8px 10px;" data-i18n="notif_prompt_step_hint">
+        ℹ️ <strong>How to activate:</strong> Tap <em>"Turn On Alerts"</em> below, then tap <strong>"Allow"</strong> when your browser asks for permission.
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button type="button" class="btn-cyan" style="flex: 1; padding: 10px; font-weight: bold;" onclick="AllianceApp.acceptNotificationPrompt()" data-i18n="btn_enable_notifications">
+          Turn On Alerts
+        </button>
+        <button type="button" class="btn-outline" style="flex: 1; padding: 10px;" onclick="AllianceApp.dismissNotificationPrompt()" data-i18n="btn_notif_maybe_later">
+          Maybe Later
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: System Alerts & Private Receipts -->
+  <div class="modal-overlay" id="modal-notifications">
+    <div class="modal-content" style="max-width: 520px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="color: var(--primary-cyan); font-family: var(--font-display);" data-i18n="notifications_title">
+          System Alerts & Private Receipts
+        </h3>
+        <button class="btn-outline modal-close" style="padding: 4px 10px; font-size: 0.8rem;">✕</button>
+      </div>
+      <div id="notifications-modal-list" style="max-height: 360px; overflow-y: auto; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="color: var(--text-muted); text-align: center; padding: 20px;" data-i18n="notifications_empty">
+          No unread alerts.
+        </div>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <button class="btn-outline" onclick="AllianceApp.markAllNotificationsRead()" data-i18n="btn_mark_all_read">
+          Mark All as Read
+        </button>
+        <button class="btn-cyan modal-close" data-i18n="btn_close">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: User Profile & Account Settings -->
+  <div class="modal-overlay" id="modal-user-settings">
+    <div class="modal-content" style="max-width: 520px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="color: var(--primary-cyan); font-family: var(--font-display);" data-i18n="user_settings_title">
+          Operative Profile & Settings
+        </h3>
+        <button class="btn-outline modal-close" style="padding: 4px 10px; font-size: 0.8rem;">✕</button>
+      </div>
+
+      <!-- Avatar Management Card -->
+      <div class="user-avatar-card">
+        <div class="avatar-preview-box" id="avatar-preview-box">
+          <img id="settings-avatar-preview" src="" alt="" style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">
+          <div id="settings-avatar-fallback" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 2.4rem; user-select: none;">🇺🇳</div>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 0.78rem; font-family: var(--font-mono); color: var(--primary-cyan); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;" data-i18n="avatar_label">Tactical Avatar & Callsign Emblem</div>
+          <div class="file-upload-wrapper">
+            <label class="file-upload-btn" for="settings-avatar-file">
+              <span>📁</span> <span data-i18n="btn_choose_file">Choose Image...</span>
+            </label>
+            <input type="file" id="settings-avatar-file" accept="image/png,image/jpeg,image/webp" style="display: none;" onchange="AllianceApp.handleAvatarFileChange(this)">
+            <span id="settings-avatar-filename" class="file-upload-filename">No file selected</span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
+            <button type="button" class="btn-cyan" style="padding: 6px 14px; font-size: 0.78rem;" onclick="AllianceApp.uploadAvatar()" data-i18n="upload_avatar_btn">
+              Upload Avatar
+            </button>
+            <button type="button" class="btn-outline" style="padding: 6px 14px; font-size: 0.78rem; border-color: var(--accent-magenta); color: var(--accent-magenta);" onclick="AllianceApp.resetAvatar()" data-i18n="btn_reset_avatar">
+              Reset to Flag
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Username / Call-Sign Field -->
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label data-i18n="username_label">Call-Sign / Operative Name</label>
+        <input type="text" id="settings-username" class="form-input" minlength="3" maxlength="30" placeholder="Call-sign">
+      </div>
+
+      <!-- Profile Metadata Form -->
+      <div class="form-grid-2" style="margin-bottom: 14px;">
+        <div class="form-group">
+          <label data-i18n="national_flag_label">National Flag</label>
+          <select id="settings-flag" class="form-select">
+            <option value="UN">🇺🇳 UN - United Nations</option>
+            <option value="FI">🇫🇮 FI - Finland</option>
+            <option value="PRIDE">🏳️‍🌈 PRIDE - Pride Rainbow Flag</option>
+            <option value="FINISH">🏁 FINISH - Checkered Flag</option>
+            <option value="PIRATE">🏴‍☠️ PIRATE - Jolly Roger Flag</option>
+            <option value="PEACE">🏳️ PEACE - White Peace Flag</option>
+            <option value="BLACK">🏴 BLACK - Black Flag</option>
+            <option value="EU">🇪🇺 EU - European Union</option>
+            <option value="US">🇺🇸 US - United States</option>
+            <option value="GB">🇬🇧 GB - United Kingdom</option>
+            <option value="RU">🇷🇺 RU - Russian Federation</option>
+            <option value="CN">🇨🇳 CN - China</option>
+            <option value="DE">🇩🇪 DE - Germany</option>
+            <option value="FR">🇫🇷 FR - France</option>
+            <option value="JP">🇯🇵 JP - Japan</option>
+            <option value="KR">🇰🇷 KR - South Korea</option>
+            <option value="UA">🇺🇦 UA - Ukraine</option>
+            <option value="CA">🇨🇦 CA - Canada</option>
+            <option value="AU">🇦🇺 AU - Australia</option>
+            <option value="BR">🇧🇷 BR - Brazil</option>
+            <option value="IN">🇮🇳 IN - India</option>
+            <option value="IT">🇮🇹 IT - Italy</option>
+            <option value="ES">🇪🇸 ES - Spain</option>
+            <option value="MX">🇲🇽 MX - Mexico</option>
+            <option value="NL">🇳🇱 NL - Netherlands</option>
+            <option value="SE">🇸🇪 SE - Sweden</option>
+            <option value="NO">🇳🇴 NO - Norway</option>
+            <option value="PL">🇵🇱 PL - Poland</option>
+            <option value="KZ">🇰🇿 KZ - Kazakhstan</option>
+            <option value="BY">🇧🇾 BY - Belarus</option>
+            <option value="TR">🇹🇷 TR - Turkey</option>
+            <option value="SA">🇸🇦 SA - Saudi Arabia</option>
+            <option value="ZA">🇿🇦 ZA - South Africa</option>
+            <option value="AR">🇦🇷 AR - Argentina</option>
+            <option value="SG">🇸🇬 SG - Singapore</option>
+            <option value="CH">🇨🇭 CH - Switzerland</option>
+            <option value="AT">🇦🇹 AT - Austria</option>
+            <option value="BE">🇧🇪 BE - Belgium</option>
+            <option value="DK">🇩🇰 DK - Denmark</option>
+            <option value="IE">🇮🇪 IE - Ireland</option>
+            <option value="NZ">🇳🇿 NZ - New Zealand</option>
+            <option value="IL">🇮🇱 IL - Israel</option>
+            <option value="GR">🇬🇷 GR - Greece</option>
+            <option value="PT">🇵🇹 PT - Portugal</option>
+            <option value="CZ">🇨🇿 CZ - Czech Republic</option>
+            <option value="HU">🇭🇺 HU - Hungary</option>
+            <option value="RO">🇷🇴 RO - Romania</option>
+            <option value="BG">🇧🇬 BG - Bulgaria</option>
+            <option value="RS">🇷🇸 RS - Serbia</option>
+            <option value="HR">🇭🇷 HR - Croatia</option>
+            <option value="AE">🇦🇪 AE - United Arab Emirates</option>
+            <option value="EG">🇪🇬 EG - Egypt</option>
+            <option value="NG">🇳🇬 NG - Nigeria</option>
+            <option value="KE">🇰🇪 KE - Kenya</option>
+            <option value="CL">🇨🇱 CL - Chile</option>
+            <option value="CO">🇨🇴 CO - Colombia</option>
+            <option value="VN">🇻🇳 VN - Vietnam</option>
+            <option value="TH">🇹🇭 TH - Thailand</option>
+            <option value="ID">🇮🇩 ID - Indonesia</option>
+            <option value="MY">🇲🇾 MY - Malaysia</option>
+            <option value="PH">🇵🇭 PH - Philippines</option>
+            <option value="IS">🇮🇸 IS - Iceland</option>
+            <option value="EE">🇪🇪 EE - Estonia</option>
+            <option value="LV">🇱🇻 LV - Latvia</option>
+            <option value="LT">🇱🇹 LT - Lithuania</option>
+            <option value="GE">🇬🇪 GE - Georgia</option>
+            <option value="AM">🇦🇲 AM - Armenia</option>
+            <option value="AZ">🇦🇿 AZ - Azerbaijan</option>
+            <option value="UZ">🇺🇿 UZ - Uzbekistan</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n="preferred_lang_label">Preferred Language</label>
+          <select id="settings-lang" class="form-select">
+            <option value="en">English (EN)</option>
+            <option value="ru">Русский (RU)</option>
+          </select>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 18px;">
+        <button class="btn-cyan" style="padding: 6px 16px; font-size: 0.85rem;" onclick="AllianceApp.saveProfileSettings()" data-i18n="btn_save_settings">
+          Save Settings
+        </button>
+      </div>
+
+      <!-- Password Change Section -->
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 14px;">
+        <h4 style="color: var(--energy-amber); font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 10px;" data-i18n="change_password_title">
+          Change Passcode
+        </h4>
+        <div class="form-group">
+          <label data-i18n="current_password_label">Current Passcode</label>
+          <input type="password" id="settings-old-pass" class="form-input" placeholder="Current password">
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label data-i18n="new_password_label">New Passcode</label>
+            <input type="password" id="settings-new-pass" class="form-input" placeholder="Min 6 characters">
+          </div>
+          <div class="form-group">
+            <label data-i18n="confirm_password_label">Confirm Passcode</label>
+            <input type="password" id="settings-confirm-pass" class="form-input" placeholder="Repeat new password">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+          <button class="btn-outline" style="border-color: var(--energy-amber); color: var(--energy-amber); padding: 6px 16px; font-size: 0.85rem;" onclick="AllianceApp.changePassword()" data-i18n="btn_update_password">
+            Update Passcode
+          </button>
+        </div>
+      </div>
+
+      <!-- Alert & Notification Preferences Section -->
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 14px; margin-top: 14px;">
+        <h4 style="color: var(--primary-cyan); font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 10px;" data-i18n="alert_settings_title">
+          Alert Preferences & Web Notifications
+        </h4>
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem;">
+          <label class="form-checkbox-label">
+            <input type="checkbox" id="alert-pref-eliminations" checked onchange="AllianceApp.saveAlertPreference('eliminations', this.checked)">
+            <span data-i18n="alert_opt_eliminations">Casualty & Elimination Reports</span>
+          </label>
+          <label class="form-checkbox-label">
+            <input type="checkbox" id="alert-pref-conference" checked onchange="AllianceApp.saveAlertPreference('conference', this.checked)">
+            <span data-i18n="alert_opt_conference">Diplomatic Conference Deliberation & Outcomes</span>
+          </label>
+          <label class="form-checkbox-label">
+            <input type="checkbox" id="alert-pref-moves" onchange="AllianceApp.saveAlertPreference('moves', this.checked)">
+            <span data-i18n="alert_opt_moves">Player Grid Maneuvers & Movement Alerts</span>
+          </label>
+          <label class="form-checkbox-label">
+            <input type="checkbox" id="alert-pref-transfers" checked onchange="AllianceApp.saveAlertPreference('transfers', this.checked)">
+            <span data-i18n="alert_opt_transfers">Action Point Transfers & Aid Receipts</span>
+          </label>
+          <div style="margin-top: 8px; padding: 10px; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: var(--radius-sm);">
+            <div style="font-weight: 600; color: var(--primary-cyan); margin-bottom: 4px;" data-i18n="alert_opt_web_notifications">Self-Contained Browser Web Notifications</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;" data-i18n="alert_opt_web_desc">Direct browser alerts when playing in other tabs or minimized without external services.</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="btn-cyan" id="btn-request-browser-notifs" style="padding: 5px 12px; font-size: 0.78rem;" onclick="AllianceApp.enableBrowserWebNotifications()" data-i18n="btn_enable_browser_notifs">Enable Notifications on This Device</button>
+              <button type="button" class="btn-outline" id="btn-disable-device-notifs" style="display: none; padding: 5px 12px; font-size: 0.78rem; border-color: var(--accent-magenta); color: var(--accent-magenta);" onclick="AllianceApp.disableDeviceNotifications()" data-i18n="btn_disable_device_notifs">Disable Notifications on This Device</button>
+              <button type="button" class="btn-outline" id="btn-disable-all-devices-notifs" style="padding: 5px 12px; font-size: 0.78rem; border-color: #EF4444; color: #EF4444;" onclick="AllianceApp.disableAllDevicesNotifications()" data-i18n="btn_disable_all_devices_notifs">Disable on All Devices</button>
+              <button type="button" class="btn-outline" id="btn-test-notif" style="padding: 5px 12px; font-size: 0.78rem;" onclick="AllianceApp.testBrowserNotification()" data-i18n="btn_test_notification">Send Test Notification</button>
+            </div>
+            <div id="browser-notif-status" style="font-size: 0.75rem; margin-top: 8px; font-weight: 500;"></div>
+
+            <!-- Registered Devices Controls -->
+            <div style="margin-top: 12px; border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-weight: 600; font-family: var(--font-mono); color: var(--primary-cyan); font-size: 0.78rem;" data-i18n="notif_devices_title">Registered Notification Devices</span>
+              </div>
+              <div id="notif-devices-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto;">
+                <div style="color: var(--text-muted); font-size: 0.75rem;" data-i18n="notif_devices_loading">Loading registered devices...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger Zone: Account Deletion -->
+      <div style="border-top: 1px solid rgba(239, 68, 68, 0.3); padding-top: 14px; margin-top: 14px; background: rgba(239, 68, 68, 0.04); border-radius: var(--radius-sm); padding: 12px;">
+        <div style="color: #EF4444; font-family: var(--font-mono); font-size: 0.82rem; font-weight: bold; margin-bottom: 6px;" data-i18n="danger_zone_title">
+          ⚠️ Danger Zone
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px;" data-i18n="danger_zone_desc">
+          Permanently erase your operative account, credentials, and historical session logs. This action is irreversible.
+        </div>
+        <button type="button" class="btn-outline" id="btn-delete-account" style="border-color: #EF4444; color: #EF4444; width: 100%; font-size: 0.8rem; padding: 6px 14px;" onclick="AllianceApp.deleteAccount()" data-i18n="btn_delete_account">
+          Delete Operative Account
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: In-Lobby Settings & Parameter Audit Trail -->
+  <div class="modal-overlay" id="modal-lobby-settings-audit">
+    <div class="modal-content modal-wide" style="max-height: 85vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="color: var(--primary-cyan); font-family: var(--font-display);" data-i18n="lobby_settings_audit_title">
+          Match Parameters & Audit Trail
+        </h3>
+        <button class="btn-outline modal-close" style="padding: 4px 10px; font-size: 0.8rem;">✕</button>
+      </div>
+
+      <div id="lobby-admin-banner" style="display:none; font-size: 0.8rem; background: rgba(0,240,255,0.1); border: 1px solid var(--primary-cyan); padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 14px; color: var(--primary-cyan);">
+        ADMINISTRATOR PRIVILEGES DETECTED: You may modify live lobby parameters mid-game. Modifications will be recorded in the immutable audit trail.
+      </div>
+
+      <!-- Active Parameters Configuration Form -->
+      <div id="lobby-settings-form-container">
+        <h4 style="font-size: 0.85rem; color: var(--energy-amber); text-transform: uppercase; margin: 12px 0 8px 0; font-family: var(--font-mono);">
+          Active Match Parameters
+        </h4>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label><span data-i18n="cfg_burst_cap">Burst Cap (Max AP per Payload)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_burst_cap">Maximum AP that can be consumed in a single command payload.</span></span></label>
+            <input type="number" id="edit-cfg-burst-cap" class="form-input" min="1" max="10">
+          </div>
+          <div class="form-group">
+            <label><span data-i18n="cfg_drop_amount">AP Awarded Per Daily Drop</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_drop_amount">How many AP points each living unit receives every 24 hours.</span></span></label>
+            <input type="number" id="edit-cfg-drop-amount" class="form-input" min="1" max="10">
+          </div>
+          <div class="form-group">
+            <label><span data-i18n="ap_distribution_server_time">Daily AP Drop Time (Server Time)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_drop_time">Daily clock hour in server time when +1 AP drops.</span></span></label>
+            <input type="time" id="edit-cfg-ap-drop-server-time" class="form-input">
+          </div>
+          <div class="form-group">
+            <label><span data-i18n="cfg_cost_give">Give AP Fee (AP, 0 = No fee)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_give_cost">Fee required to transfer 1 AP to another operative (0 = free).</span></span></label>
+            <input type="number" id="edit-cfg-cost-give" class="form-input" min="0" max="5">
+          </div>
+          <div class="form-group">
+            <label><span data-i18n="cfg_cost_move">Move Cost (AP)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_move_cost">AP required to move 1 orthogonal step.</span></span></label>
+            <input type="number" id="edit-cfg-cost-move" class="form-input" min="1" max="5">
+          </div>
+          <div class="form-group">
+            <label><span data-i18n="cfg_cost_attack">Strike Cost (AP)</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_attack_cost">AP required to strike an enemy in range for 1 damage.</span></span></label>
+            <input type="number" id="edit-cfg-cost-attack" class="form-input" min="1" max="5">
+          </div>
+          <div class="form-group">
+            <label>Armistice Trigger Threshold (0.1 - 1.0) <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_armistice_threshold">Fraction of surviving players needed to trigger conference (1.0 = 100%).</span></span></label>
+            <input type="number" id="edit-cfg-armistice-trigger-threshold" class="form-input" min="0.1" max="1.0" step="0.1">
+          </div>
+          <div class="form-group">
+            <label>Conference Duration (Seconds) <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_conference_duration">Duration the conference countdown window stays open for votes.</span></span></label>
+            <input type="number" id="edit-cfg-conference-duration" class="form-input" min="15" max="3600">
+          </div>
+        </div>
+
+        <div class="form-grid-2" style="margin-top: 8px;">
+          <div class="form-group">
+            <label><span data-i18n="conference_transparency_label">Conference Transparency Mode</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_transparency">Regulates vote visibility during a convened Diplomatic Conference.</span></span></label>
+            <select id="edit-cfg-conference-transparency" class="form-select">
+              <option value="REVEAL_COUNTS_AT_END" data-i18n="transparency_counts_at_end" selected>Hide votes during conference, reveal counts at end</option>
+              <option value="SHOW_ALL_VOTES" data-i18n="transparency_show_all">Show how each player votes</option>
+              <option value="SHOW_TOTAL_AGREE" data-i18n="transparency_show_total">Show total number of players who agreed</option>
+              <option value="SECRET_RESOLVE" data-i18n="transparency_secret_resolve">Keep votes secret throughout, resolve directly</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><span data-i18n="cfg_conference_end_condition_label">Conference Conclusion Rule</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_conference_end_condition">Determines whether the conference resolves as soon as all active players have cast ballots, or stays open until the countdown timer expires.</span></span></label>
+            <select id="edit-cfg-conference-end-condition" class="form-select">
+              <option value="ON_ALL_VOTED" data-i18n="conf_end_all_voted" selected>End once everyone votes (or on timer)</option>
+              <option value="TIMER_ONLY" data-i18n="conf_end_timer_only">Only end once timer runs out</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Single Choice Consequence Configuration (Live Editable Circle Tickboxes) -->
+        <div class="consequence-box" style="margin-top: 10px;">
+          <div style="font-weight: bold; font-size: 0.85rem; color: var(--primary-cyan); margin-bottom: 8px;">
+            <span data-i18n="cfg_single_outcome_label">Single Dissenter Consequences (Exactly 1 Disagrees)</span>
+            <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_single_outcome">Consequence enacted if exactly one player votes against peace or abstains.</span></span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label class="form-radio-label">
+              <input type="radio" name="edit-cfg-single-outcome" value="INSTANT_WIN" onchange="AllianceApp.handleEditSingleOutcomeChange(this)">
+              <span data-i18n="consequence_instant_win">Instant Win</span>
+              <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_instant_win">Dissenter immediately wins the match alone by sabotaging the accord.</span></span>
+            </label>
+            <label class="form-radio-label">
+              <input type="radio" name="edit-cfg-single-outcome" value="GRANT_AP" onchange="AllianceApp.handleEditSingleOutcomeChange(this)">
+              <span data-i18n="consequence_grant_ap">Grant AP &amp; Resume Combat</span>
+              <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_grant_ap">Dissenter receives bonus Action Points and the match resumes.</span></span>
+            </label>
+            <label class="form-radio-label">
+              <input type="radio" name="edit-cfg-single-outcome" value="RESUME_COMBAT" onchange="AllianceApp.handleEditSingleOutcomeChange(this)">
+              <span data-i18n="consequence_resume_combat">Resume Combat</span>
+              <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_resume_combat">The conference dissolves without bonuses and normal play resumes.</span></span>
+            </label>
+          </div>
+          <div class="form-group" id="edit-cfg-rogue-bonus-group" style="margin-top: 6px;">
+            <label style="font-size: 0.78rem;"><span data-i18n="cfg_rogue_bonus_label">Bonus AP Awarded to Lone Dissenter</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_rogue_bonus">Bonus Action Points awarded to the lone dissenter if Grant AP is selected.</span></span></label>
+            <input type="number" id="edit-cfg-rogue-bonus" class="form-input" min="1" max="10" style="padding: 4px 8px; font-size: 0.82rem;">
+          </div>
+        </div>
+
+        <div class="consequence-box" style="margin-top: 10px;">
+          <div style="font-weight: bold; font-size: 0.85rem; color: var(--accent-magenta); margin-bottom: 8px;">
+            <span data-i18n="cfg_multi_outcome_label">Multiple Dissenters Consequences (>1 Disagree)</span>
+            <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_multi_outcome">Consequence enacted if two or more players vote against peace or abstain.</span></span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label class="form-radio-label">
+              <input type="radio" name="edit-cfg-multi-outcome" value="INSTANT_WIN" onchange="AllianceApp.handleEditMultiOutcomeChange(this)">
+              <span data-i18n="consequence_instant_win">Instant Win</span>
+              <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_instant_win">Dissenters share a collective betrayal victory by sabotaging the accord.</span></span>
+            </label>
+            <label class="form-radio-label">
+              <input type="radio" name="edit-cfg-multi-outcome" value="GRANT_AP" onchange="AllianceApp.handleEditMultiOutcomeChange(this)">
+              <span data-i18n="consequence_grant_ap">Grant AP &amp; Resume Combat</span>
+              <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_grant_ap">Each dissenter receives bonus Action Points and the match resumes.</span></span>
+            </label>
+            <label class="form-radio-label">
+              <input type="radio" name="edit-cfg-multi-outcome" value="RESUME_COMBAT" onchange="AllianceApp.handleEditMultiOutcomeChange(this)">
+              <span data-i18n="consequence_resume_combat">Resume Combat</span>
+              <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_consequence_resume_combat">The conference dissolves without bonuses and normal play resumes.</span></span>
+            </label>
+          </div>
+          <div class="form-group" id="edit-cfg-multi-bonus-group" style="margin-top: 6px; display: none;">
+            <label style="font-size: 0.78rem;"><span data-i18n="cfg_multi_bonus_label">Bonus AP Awarded to Each Dissenter</span> <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_multi_bonus">Bonus Action Points awarded to each dissenting player if Grant AP is selected.</span></span></label>
+            <input type="number" id="edit-cfg-multi-disagree-bonus" class="form-input" min="1" max="10" style="padding: 4px 8px; font-size: 0.82rem;">
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+          <label class="form-checkbox-label">
+            <input type="checkbox" id="edit-cfg-win-armistice">
+            <span data-i18n="cfg_win_armistice_label">Enable Diplomatic Conference (Peace Accord)</span>
+            <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_win_armistice">Allows active players to convene a diplomatic conference to achieve a collective peace victory.</span></span>
+          </label>
+          <label class="form-checkbox-label">
+            <input type="checkbox" id="edit-cfg-armistice-hide-votes">
+            <span data-i18n="hide_armistice_votes_label">Hide Armistice Voter Count (Keep peace ballots classified)</span>
+            <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_armistice_hide">Conceals the count of peace ballots to prevent premature signaling.</span></span>
+          </label>
+          <label class="form-checkbox-label">
+            <input type="checkbox" id="edit-cfg-fog-of-war">
+            <span data-i18n="cfg_fog_of_war_label">Enforce Strict Fog of War (Hide Opponent Hearts & AP)</span>
+            <span class="info-tip-btn" tabindex="0" onclick="AllianceApp.toggleTooltip(this, event)">ℹ<span class="info-tip-bubble" data-i18n="tip_fog_of_war">Hides opponent Hearts, Action Points, and Range tiers from direct inspection.</span></span>
+          </label>
+          <label class="form-checkbox-label">
+            <input type="checkbox" id="edit-cfg-allow-late-join">
+            <span data-i18n="cfg_allow_late_join_label">Allow Late Join (Up to 3 hours before first AP drop with host approval)</span>
+          </label>
+          <label class="form-checkbox-label">
+            <input type="checkbox" id="edit-cfg-map-voting-enabled">
+            <span data-i18n="cfg_map_voting_label">Offer 4 Random Placement Options &amp; Ranked Choice Vote (RCV)</span>
+          </label>
+          <div class="form-group" style="margin-top: 4px;">
+            <label><span data-i18n="cfg_map_voting_duration_label">Map Voting Duration (Minutes: 1 - 1440)</span></label>
+            <input type="number" id="edit-cfg-map-voting-duration" class="form-input" value="10" min="1" max="1440">
+          </div>
+        </div>
+
+        <!-- Pending Join Requests Section (Host/Admin) -->
+        <div id="lobby-join-requests-section" style="display: none; margin-top: 18px; border-top: 1px solid var(--border-subtle); padding-top: 14px;">
+          <h4 style="font-size: 0.85rem; color: var(--primary-cyan); text-transform: uppercase; margin-bottom: 10px; font-family: var(--font-mono);" data-i18n="join_requests_title">
+            Late Join Requests (Host Approval)
+          </h4>
+          <div id="lobby-join-requests-list" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- dynamically populated -->
+          </div>
+        </div>
+
+        <div id="lobby-admin-save-btn-container" style="display:none; flex-direction: column; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="btn-cyan" onclick="AllianceApp.saveLobbyConfigModifications()" data-i18n="btn_save_config">
+              Save Modifications (Audit Logged)
+            </button>
+          </div>
+          <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="font-size: 0.78rem; font-family: var(--font-mono); color: #EF4444; font-weight: bold;">
+              ⚠️ ADMIN OPERATIONS
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn-cyan" id="btn-admin-recreate-lobby" style="padding: 6px 14px; font-size: 0.8rem;" onclick="AllianceApp.openRecreateLobbyModal()" data-i18n="btn_recreate_lobby">
+                Recreate Lobby
+              </button>
+              <button class="btn-outline" id="btn-admin-end-game" style="border-color: var(--accent-magenta); color: var(--accent-magenta); padding: 6px 14px; font-size: 0.8rem;" onclick="AllianceApp.terminateActiveGame()" data-i18n="btn_end_game_early">
+                End Game Prematurely (Admin)
+              </button>
+              <button class="btn-outline" id="btn-admin-erase-game" style="border-color: #EF4444; color: #EF4444; padding: 6px 14px; font-size: 0.8rem;" onclick="AllianceApp.permanentlyDeleteActiveGame()" data-i18n="btn_erase_game_permanently">
+                Erase Match Forever (Admin)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Immutable Match Audit Trail Table -->
+      <div style="margin-top: 24px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+        <h4 style="font-size: 0.85rem; color: var(--primary-cyan); text-transform: uppercase; margin-bottom: 10px; font-family: var(--font-mono);" data-i18n="audit_trail_header">
+          Match Parameter Audit Trail
+        </h4>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th data-i18n="th_timestamp">Timestamp (Server)</th>
+              <th data-i18n="th_parameter">Parameter</th>
+              <th data-i18n="th_old_value">Old Value</th>
+              <th data-i18n="th_new_value">New Value</th>
+              <th data-i18n="th_admin_player">Admin Operative</th>
+            </tr>
+          </thead>
+          <tbody id="match-audit-tbody">
+            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 14px;">Loading audit trail...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Script Imports -->
+  <script src="/static/js/i18n.js"></script>
+  <script src="/static/js/board.js"></script>
+  <script src="/static/js/radial_dock.js"></script>
+  <script src="/static/js/simulator.js"></script>
+  <script src="/static/js/replay.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
